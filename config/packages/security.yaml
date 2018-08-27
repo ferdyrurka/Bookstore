@@ -1,0 +1,79 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    encoders:
+        App\Entity\User: bcrypt
+
+    providers:
+        in_memory: { memory: ~ }
+
+        user_db_provider:
+            entity:
+                  class: App:User
+                  property: username
+
+        admin_db_provider:
+            entity:
+                  class: App:User
+                  property: username
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        admin:
+            pattern: ^/admin1999(.*)
+            provider: admin_db_provider
+            anonymous: true
+            form_login:
+                login_path: /admin1999
+                check_path: /admin1999
+                username_parameter: "sign_in_form[username]"
+                password_parameter: "sign_in_form[password]"
+                csrf_token_generator: security.csrf.token_manager
+                default_target_path: /admin1999/products
+            logout:
+                path: /admin1999/log-out
+                target: /admin1999
+            guard:
+                authenticators:
+                    - App\Security\TokenAuthenticator
+            entry_point: App\Security\TokenAuthenticator
+            remember_me:
+                secret:   '0ABD46469DED93862393FE7000B43A33FEBA6A8761B1B23B0EC90FFB7181F498'
+                lifetime: 86400 # 1 day in seconds
+
+        main:
+            pattern: ^/
+            anonymous: true
+            provider: user_db_provider
+            form_login:
+                login_path: /sign-in
+                check_path: /sign-in
+                use_forward: false
+                username_parameter: "sign_in_form[username]"
+                password_parameter: "sign_in_form[password]"
+                csrf_token_generator: security.csrf.token_manager
+            logout:
+                path:   /log-out
+                target: /sign-in
+            guard:
+                authenticators:
+                    - App\Security\TokenAuthenticator
+            entry_point: App\Security\TokenAuthenticator
+            remember_me:
+                secret:   '09af22d128cdee0b726a7787cc6bbe08'
+                lifetime: 604800 # 1 week in seconds
+
+            # activate different ways to authenticate
+
+            # http_basic: true
+            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
+
+            # form_login: true
+            # https://symfony.com/doc/current/security/form_login_setup.html
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # - { path: ^/admin, roles: ROLE_ADMIN }
+        # - { path: ^/profile, roles: ROLE_USER }
