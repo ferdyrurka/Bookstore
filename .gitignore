@@ -9,6 +9,8 @@
 .vscode
 ###> symfony/phpunit-bridge ###
 .phpunit
+composer.lock
+symfony.lock
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
