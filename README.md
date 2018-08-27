@@ -45,6 +45,7 @@ Jakie błędy popełniłem
 --
 
 Na pewno przy następnych projektach nie będę wykonywać TDD kontrollerów tylko i wyłącznie za pomocą WebTestCase.
+Zaniedbałem repozytorium od samego początku, co spowodowało złe utrzymanie w końcowym efekcie.
 
 Inne
 --
