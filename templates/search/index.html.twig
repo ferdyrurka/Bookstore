@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}searched{% endtrans %} {{ phrase }}{% endblock %}
+
+{% block body %}
+
+    <h2 class="text-center">{% trans %}Search phrase{% endtrans %}: {{ phrase }}</h2>
+
+    {% if products is not empty %}
+        <div class="row">
+            {% for product in products %}
+
+                <div class="col-3 product" style="height: 500px">
+                    {% if product.getProductImageId() is not empty %}
+                        <img width="100%" height="200px" src="{{ product.getProductImageReferences().getPath() }}">
+                    {% else %}
+                        <img width="100%" height="200px" src="/img/product/no-thumbnail.png">
+                    {% endif %}
+                    <div style="width: 100%"><strong>{% trans %}Name{% endtrans %}: </strong>{{ product.getName() }} </div>
+                    <div style="width: 100%"><strong>{% trans %}Categories{% endtrans %}:</strong>
+                        {% for category in product.getCategoryReferences().getValues() %}
+                            {{ category.getName() }}
+                        {% endfor %}
+                    </div>
+                    <div style="width: 100%"><strong>{% trans %}Price{% endtrans %}:</strong>  {{ product.getPrice() }}</div>
+                    <a href="{{ product.getSlug() }}" style="text-decoration: none !important;"> {% trans %}look.product{% endtrans %}</a>
+                </div>
+
+            {% endfor %}
+        </div>
+    {% else %}
+        <h2 class="text-center">{% trans %}The given phrase has not been found. Try to write it differently.{% endtrans %}</h2>
+        <form method="POST">
+            <input class="form-control mr-sm-2" type="search" name="q" placeholder="{% trans %}search{% endtrans %}" aria-label="Search">
+            <button class="btn" type="submit">{% trans %}search{% endtrans %}</button>
+        </form>
+    {% endif %}
+
+{% endblock %}

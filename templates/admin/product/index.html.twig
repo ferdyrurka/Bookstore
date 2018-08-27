@@ -1,0 +1,28 @@
+{% extends 'admin/admin.html.twig' %}
+
+{% block title %}{% trans %}all.products{% endtrans %}{% endblock %}
+
+{% block body %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">{% trans %}Name{% endtrans %}</th>
+            <th scope="col">{% trans %}Magazine{% endtrans %}</th>
+            <th scope="col">{% trans %}update{% endtrans %}</th>
+            <th scope="col">{% trans %}delete{% endtrans %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr>
+                <th>{{ product.getId()}}</th>
+                <th>{{ product.getName() }}</th>
+                <th>{{ product.getMagazine() }}</th>
+                <th><a class="btn-dark" href="/admin1999/update-product/{{ product.getId() }}" >{% trans %}update{% endtrans %}</a></th>
+                <th><a class="btn-dark" href="/admin1999/delete-product/{{ product.getId() }}" >{% trans %}delete{% endtrans %}</a></th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'admin/admin.html.twig' %}
+
+{% block title %}{% trans %}orders{% endtrans %}{% endblock %}
+
+{% block body %}
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>{% trans %}Id{% endtrans %}</th>
+            <th>{% trans %}City{% endtrans %}</th>
+            <th>{% trans %}Email{% endtrans %}</th>
+            <th>{% trans %}Price{% endtrans %}</th>
+            <th>{% trans %}look{% endtrans %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+            <tr>
+                <th>{{ order.getId }}</th>
+                <th>{{ order.getCity }}</th>
+                <th>{{ order.getEmail }}</th>
+                <th>{{ order.getCost() }}</th>
+                <th><a href="{{ path("index.adminOrder",{'orderId': order.getId()}) }}">{% trans %}look{% endtrans %}</a></th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

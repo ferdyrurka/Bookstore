@@ -1,0 +1,27 @@
+{% extends 'admin/admin.html.twig' %}
+
+{% block title %}{% trans %}all.categories{% endtrans %}{% endblock %}
+
+{% block body %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">{% trans %}Name{% endtrans %}</th>
+            <th scope="col">{% trans %}update{% endtrans %}</th>
+            <th scope="col">{% trans %}delete{% endtrans %}</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+                <tr>
+                    {% set id = category.getId() %}
+                    <th>{{ id }}</th>
+                    <th>{{ category.getName() }}</th>
+                    <th><a href="{{ path('update.adminCategory', {'categoryId': id}) }}">{% trans %}update{% endtrans %}</a></th>
+                    <th><a href="{{ path('delete.adminCategory', {'categoryId': id}) }}">{% trans %}delete{% endtrans %}</a></th>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

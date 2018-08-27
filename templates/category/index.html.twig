@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}all.categories{% endtrans %}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        {% for category in categories %}
+            <div class="col-3" style="height: 500px">
+                {% set url = category.getSlug() %}
+                <div style="width: 100%"><strong>{% trans %}Name{% endtrans %}:</strong>  <a href="{{ url }}">{{ category.getName() }}</a> </div>
+                <div style="width: 100%"><a href="products-in-category/{{ url }}">{% trans %}look.product.category{% endtrans %}</a> </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

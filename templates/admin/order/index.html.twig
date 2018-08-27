@@ -1,0 +1,41 @@
+{% extends 'admin/admin.html.twig' %}
+
+{% block title %}{% trans %}order{% endtrans %}{% endblock %}
+
+{% block body %}
+    <h1 class="name">{% trans %}Order no{% endtrans %} {{ order.getId() }}</h1>
+    <span>{% trans %}Price order{% endtrans %}: {{ order.getCost }}zł</span> </br>
+    <span>{% trans %}Delivery method{% endtrans %}: {{ order.getDeliveryMethodReferences.getName }}</span> </br>
+    <span>{% trans %}Price method{% endtrans %}: {{ order.getPriceMethodReferences.getName }}</span> </br>
+
+    <h2>{% trans %}Delivery{% endtrans %}</h2>
+    <span><strong>{% trans %}Postcode{% endtrans %}:</strong> {{ order.getPostCode() }}</span> </br>
+    <span><strong>{% trans %}Phone{% endtrans %}:</strong> {{ order.getPhone() }}</span> </br>
+    <span><strong>{% trans %}City{% endtrans %}:</strong> {{ order.getCity() }}</span> </br>
+    <span><strong>{% trans %}Street{% endtrans %}:</strong> {{ order.getStreet() }}</span> </br>
+    <span><strong>{% trans %}House number{% endtrans %}:</strong> {{ order.getHouseNumber() }}</span> </br>
+    <span><strong>{% trans %}First name{% endtrans %}:</strong> {{ order.getFirstName()  }}</span> </br>
+    <span><strong>{% trans %}Surname{% endtrans %}:</strong> {{ order.getSurname() }}</span> </br>
+    <span><strong>{% trans %}Email{% endtrans %}:</strong> {{ order.getEmail() }}</span> </br>
+
+
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>{% trans %}Name{% endtrans %}</th>
+            <th>{% trans %}How many pieces{% endtrans %}</th>
+            <th>{% trans %}Price{% endtrans %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in order.getProducts() %}
+            <tr>
+                <th>{{ product.name }}</th>
+                <th>{{ product.how_much }}</th>
+                <th>{{ product.cost }}</th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

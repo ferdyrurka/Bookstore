@@ -1,0 +1,9 @@
+{% extends 'admin/admin.html.twig' %}
+
+{% block title %}{% trans %}create.product{% endtrans %}{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+{% endblock %}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Welcome in LukStaBookStore{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="stylesheet" href="/media/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/media/css/style.css">
+        <script src="/media/js/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="/media/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <header class="header">
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <a class="navbar-brand" href="/">LukSta BookStore</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                            {% if is_granted('ROLE_USER') == false %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('login.security') }}">{% trans %}sign in{% endtrans %}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('register.security') }}">{% trans %}sign up{% endtrans %}</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {% trans %}yourAccount{% endtrans %}
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ path('changePersonalDetails.user') }}">{% trans %}Personal details{% endtrans %}</a>
+                                        <a class="dropdown-item" href="{{ path('changePassword.changePassword') }}">{% trans %}change password{% endtrans %}</a>
+                                        <a class="dropdown-item" href="{{ path('logout.security') }}">{% trans %}logoutUser{% endtrans %}</a>
+                                    </div>
+                                </li>
+                            {% endif %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('index.category') }}">{% trans %}categories{% endtrans %}</a>
+                            </li>
+                        <li class="nav-item">
+
+                            {% set cart_id = app.session.get('cart_id') %}
+
+                            {% if cart_id is empty %}
+                                {% set cart_id = '#' %}
+                            {% else %}
+                                {% set cart_id = path('index.order', {'cartId': app.session.get('cart_id') }) %}
+                            {% endif %}
+
+                            <a class="nav-link" id="basket" href="{{ cart_id }}">{% trans %}basket{% endtrans %}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('productsList.product') }}">{% trans %}all.product{% endtrans %}</a>
+                        </li>
+                    </ul>
+                    <form class="form-inline my-2 my-lg-0" method="GET" action="{{ path('index.search') }}">
+                        <input class="form-control mr-sm-2" type="search" name="q" placeholder="{% trans %}search{% endtrans %}" aria-label="Search">
+                        <button class="btn btn-outline-light my-2 my-sm-0" type="submit">{% trans %}search{% endtrans %}</button>
+                    </form>
+                </div>
+            </nav>
+        </header>
+
+        <div class="container">
+            {% block body %}
+            {% endblock %}
+        </div>
+
+        {% block javascripts %}{% endblock %}
+        {% block ajax %}{% endblock %}
+        <footer class="copyright col-12">
+            <span>Copyright by <a href="https://lukaszstaniszewski.pl">Lukasz Staniszewski</a></span>
+        </footer>
+    </body>
+</html>

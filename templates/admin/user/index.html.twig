@@ -1,0 +1,37 @@
+{% extends 'admin/admin.html.twig' %}
+
+{% block title %}{% trans %}all.users{% endtrans %}{% endblock %}
+
+{% block body %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">{% trans %}Username{% endtrans %}</th>
+            <th scope="col">{% trans %}Email{% endtrans %}</th>
+            <th scope="col">{% trans %}First name{% endtrans %}</th>
+            <th scope="col">{% trans %}Surname{% endtrans %}</th>
+            <th scope="col">{% trans %}Status{% endtrans %}</th>
+            <th scope="col">{% trans %}delete.account{% endtrans %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                {% set id = user.getId() %}
+                <th>{{ id }}</th>
+                <th>{{ user.getUsername() }}</th>
+                <th>{{ user.getEmail() }}</th>
+                <th>{{ user.getFirstName() }}</th>
+                <th>{{ user.getSurname() }}</th>
+                {% if user.getStatus() == 1 %}
+                    <th><a href="{{ path('disable.adminUser', {'userId': id}) }}">{% trans %}disable account{% endtrans %}</a></th>
+                {% else %}
+                    <th><a href="{{ path('activate.adminUser', {'userId': id}) }}">{% trans %}activate account{% endtrans %}</a></th>
+                {% endif %}
+                <th><a href="{{ path('delete.adminUser', {'userId': id}) }}">{% trans %}delete user{% endtrans %}</a></th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

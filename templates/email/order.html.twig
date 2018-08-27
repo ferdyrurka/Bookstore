@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <h1>Witaj {{ firstName }} {{ surname }}</h1>
+
+    Zamówiłeś następujące produkty:
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Nazwa</th>
+            <th>Ilość</th>
+            <th>Cena</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for product in products %}
+            <tr>
+                <th>{{ product.name }}</th>
+                <th>{{ product.how_much }}</th>
+                <th>{{ product.cost }} zł</th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <strong>Koszt zamówienia to: {{ cost }}</strong>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}signUp{% endtrans %}{% endblock %}
+
+{% block body %}
+        <div class="title">
+            <h1 class="text-center">{% trans %}signUp{% endtrans %}</h1>
+        </div>
+        <div class="wrapper-login col-12">
+            {{ form_start(form) }}
+            {{ form_widget(form) }}
+            {{ form_end(form) }}
+        </div>
+{% endblock %}

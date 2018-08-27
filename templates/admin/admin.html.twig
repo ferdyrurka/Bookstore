@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}LukSta Book Store{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    <link rel="stylesheet" href="/media/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/media/css/style.css">
+    <script src="/media/js/jquery.min.js"></script>
+    <script src="/media/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header class="header">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="/admin1999/products">LukSta Library panel admin</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                {% if is_granted('ROLE_ADMIN') == true  %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% trans %}categories{% endtrans %}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{{ path('index.adminCategory') }}">{% trans %}categories{% endtrans %}</a>
+                            <a class="dropdown-item" href="{{ path('create.adminCategory') }}">{% trans %}add.category{% endtrans %}</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% trans %}products{% endtrans %}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{{ path('index.adminProduct') }}">{% trans %}products{% endtrans %}</a>
+                            <a class="dropdown-item" href="{{ path('create.adminProduct') }}">{% trans %}add.product{% endtrans %}</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% trans %}Users{% endtrans %}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{{ path('index.adminUser') }}">{% trans %}users{% endtrans %}</a>
+                            <a class="dropdown-item" href="{{ path('createAdmin.adminSecurity') }}">{% trans %}add.admin{% endtrans %}</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% trans %}yourAccount{% endtrans %}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{{ path('changePersonalDetails.adminUser') }}">{% trans %}personal details{% endtrans %}</a>
+                            <a class="dropdown-item" href="{{ path('changePassword.adminChangePassword') }}">{% trans %}change password{% endtrans %}</a>
+                            <a class="dropdown-item" href="{{ path('logout.adminSecurity') }}">{% trans %}logout{% endtrans %}</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('orderList.adminOrder') }}">{% trans %}look.orders{% endtrans %}</a>
+                    </li>
+                {% else %}
+
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<div class="container">
+    {% block body %}{% endblock %}
+</div>
+
+{% block script %}{% endblock %}
+{% block javascripts %}{% endblock %}
+<footer class="copyright col-12">
+    <span>Copyright by <a href="https://lukaszstaniszewski.pl">Lukasz Staniszewski</a></span>
+</footer>
+</body>
+</html>

@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <style>
+        .hidden{
+            display: none !important;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}{{ product.getName() }}{% endblock %}
+
+{% block body %}
+    <div class="name-product"><h1 class="text-center">{{ product.getName() }}</h1></div>
+    {% if product.getProductImageId() is not empty %}
+        <div class="col-6">
+            <img class="img-fluid" src="{{ product.getProductImageReferences().getPath() }}">
+        </div>
+    {% else %}
+        <div class="col-6">
+            <img class="img-fluid" src="/img/product/no-thumbnail.png">
+        </div>
+    {% endif %}
+    {% set magazine = product.getMagazine() %}
+    <div class="col-6">
+        <span style="font-weight: bold">{% trans %}Price{% endtrans %}: {{ product.getPriceFloat() }}</span> </br>
+        <span style="font-weight: bold">{% trans %}Magazine{% endtrans %}: {{ magazine }}</span> </br>
+        <span style="font-weight: bold">
+            {% trans %}Categories{% endtrans %}:
+            {% for category in product.getCategoryReferences().getValues() %}
+                {{ category.getName() }}
+            {% endfor %}
+        </span> </br>
+        <label for="qty">{% trans %}How many pieces{% endtrans %}</label>
+        <input type="number" id="qty" min="1" max="{{ magazine }}" value="1"></br>
+        <span id="error"></span>
+        <span id="product-added" class="hidden">{% trans %}Product.add.to.basket{% endtrans %}</span>
+        <button class="btn" id="add-to-basket">{% trans %}add.checkout{% endtrans %}</button>
+    </div>
+    <div class="col-12">
+        <h1 class="text-center">{% trans %}description{% endtrans %}</h1>
+        {% set description = product.getDescription() %}
+        {% if description is not empty %}
+            <p>{{ description|raw }}</p>
+        {% else %}
+            <p>{% trans %}lack.description.product{% endtrans %}</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block ajax %}
+
+    {% set cart_id = app.session.get('cart_id') %}
+
+    <script>
+        $(document).ready(function(){
+            $("#add-to-basket").click(function(){
+                $.ajax({
+                    type: 'GET',
+                    url: '/cart/add/{{ product.getId() }}' + '/' + $('#qty').val() + '/{{ cart_id }}',
+                }).done(function(res) {
+                    $("#qty").attr('max',res['how_much']);
+
+                    if($('#qty').val() > res['how_much']){
+                        $('#qty').val(1);
+                    }
+
+                    if(res['error'] !== false){
+                        $("#error").text(res['error']);
+                        $("#product-added").addClass("hidden");
+                    }else{
+                        $("#error").text('');
+                        $("#product-added").removeClass("hidden");
+                    }
+
+                    if (res['cart_id'] !== false && typeof res['cart_id'] !== 'undefined') {
+                        $("#basket").attr("href", "/order/" + res['cart_id']);
+                    }
+                }).fail(function() {
+                    console.log('Something went wrong.');
+                })
+            });
+        });
+    </script>
+{% endblock %}

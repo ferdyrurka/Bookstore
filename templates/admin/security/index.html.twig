@@ -1,0 +1,21 @@
+{% extends 'admin/admin.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <div class="title">
+            <h1 class="text-center">{% trans %}signIn{% endtrans %}</h1>
+        </div>
+        <div class="wrapper-login col-12">
+            {% if error is not empty %}
+                <span style="color: #ff0000;">{{ error }}</span>
+            {% endif %}
+            {{ form_start(form) }}
+            {{ form_widget(form) }}
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+            <label for="remember_me">{% trans %}Remember me{% endtrans %}</label>
+            <input type="checkbox" id="remember_me" name="_remember_me" checked />
+            {{ form_end(form) }}
+        </div>
+
+    </div>
+{% endblock %}

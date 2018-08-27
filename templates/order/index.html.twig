@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}Basket{% endtrans %}{% endblock %}
+
+{% block body %}
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>{% trans %}Name{% endtrans %}</th>
+            <th>{% trans %}How many pieces{% endtrans %}</th>
+            <th>{% trans %}Price{% endtrans %}</th>
+            <th>{% trans %}delete{% endtrans %}</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for id, product in cart %}
+            <tr id="product-{{ id }}">
+                <th>{{ product.name }}</th>
+                <th><input type="number" class="qty" product-id="{{ id }}" min="1" name="product-{{ id }}" max="{{ product.magazine }}" value="{{ product.how_much }}"></th>
+                <th id="price-{{ id }}">{{ product.cost }} zł</th>
+                <th><button class="delete-product btn" product-id="{{ id }}">{% trans %}delete{% endtrans %}</button> </th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+            <span id="error" style="color: red"></span>
+    <div id="form-create-order">
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block ajax %}
+    {% set cart_id = app.session.get('cart_id') %}
+    <script>
+        $(document).ready(function(){
+            $(".delete-product").click(function(){
+                var id = $(this).attr('product-id');
+                $.ajax({
+                    type: 'GET',
+                    url: '/cart/delete/' + id + '/{{ cart_id }}',
+                }).done(function(res) {
+                    if(res['error'] === false){
+                        $("#product-"+id).remove();
+                    }else{
+                        $("#error").text(res['error']);
+                    }
+                }).fail(function() {
+                    console.log('Something went wrong.');
+                })
+            });
+            $(".qty").keyup(function () {
+                if($(this).val() !== ''){
+                    var id = $(this).attr('product-id');
+                    var value = $(this).val();
+                    var max = $(this).attr('max');
+                    $.ajax({
+                        type: 'GET',
+                        url: '/cart/update/' + id + '/' + value + '/{{ cart_id }}',
+                    }).done(function(res) {
+                        console.log(id);
+                        $(this).attr('max',res['how_much']);
+                        $("#price-"+id).text(res['price']);
+
+                        if(value > res['how_much']){
+                            $(this).val(max);
+                        }
+
+                        if(res['error'] !== false){
+                            $("#error").text(res['error']);
+                        }else{
+                            $("#error").text('');
+                        }
+
+
+                    }).fail(function() {
+                        console.log('Something went wrong.');
+                    })
+                }
+            })
+        });
+    </script>
+{% endblock %}

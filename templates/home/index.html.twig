@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1 class="text-center">{% trans %}popular.product{% endtrans %}</h1>
+    <div class="row">
+        {% if popularProducts is not empty %}
+            {% for product in popularProducts %}
+                <div class="single-product col-3">
+                    <a href="product/{{ product.getSlug() }}">
+                        {% if product.getProductImageId() is not empty %}
+                            <img src="{{ product.getProductImageReferences().getPath() }}" class="img-fluid" style="height: 150px !important;">
+                        {% else %}
+                            <img src="/img/product/no-thumbnail.png" class="img-fluid" style="height: 150px !important;">
+                        {% endif %}
+                    </a>
+                    <span>{{ product.getName() }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <h1 class="text-center">{% trans %}new.product{% endtrans %}</h1>
+    <div class="row">
+        {% if newProducts is not empty %}
+            {% for product in newProducts %}
+                <div class="single-product col-3">
+                    {% set image = product.getProductImageId() %}
+                    <a href="product/{{ product.getSlug() }}">
+                        {% if image is not empty %}
+                            <img src="{{ product.getProductImageReferences().getPath() }}" class="img-fluid" style="height: 150px !important;">
+                        {% else %}
+                            <img src="/img/product/no-thumbnail.png" class="img-fluid" style="height: 150px !important;">
+                        {% endif %}
+                    </a>
+                    <span>{{ product.getName() }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+{% endblock %}
