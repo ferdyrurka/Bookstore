@@ -1,0 +1,91 @@
+categories: Kategorie
+add.category: Dodaj kategorie
+products: Produkty
+add.product: Dodaj produkt
+Users: Użytkownicy
+users: Użytkownicy
+add.admin: Dodaj administratora
+yourAccount: Twoje konto
+personal details: Dane użytkownika
+change password: Zmień hasło
+logout: Wyloguj się
+look.orders: Zobacz zamówienia
+create.category: Stwórz kategorie
+all.categories: Kategorie
+Name: Nazwa
+update: Zaktualizuj
+delete: Skasuj
+update.category: Zaktualizuj kategorie
+change.password: Zmień hasło
+order: Zamówienia
+Order no: Zamówienie nr
+Price order: Koszt zamówienia
+Delivery method: Metoda dostawy
+Price method: Metoda płatności
+Delivery: Dostawa
+Postcode: Kod pocztowy
+Phone: Nr. telefonu
+City: Miasto
+Street: Ulica
+House number: Numer mieszkania/domu
+First name: Imię
+Surname: Nazwisko
+Email: Email
+How many pieces: Ile sztuk
+Price: Cena
+orders: Zamówienia
+Id: Id
+look: Zobacz
+create.product: Stwórz produkt
+all.products: Produkty
+Magazine: Magazyn
+update.product: Zaktualizuj produkt
+signIn: Zaloguj się
+Remember me: Zapamiętaj mnie
+Forgot password: Zapomniałem hasła
+all.users: Użytkownicy
+Username: Nazwa użytkownika
+Status: Status
+delete.account: Skasuj konto
+disable account: Wyłącz konto
+activate account: Aktywuj konto
+delete user: Skasuj użytwkonika
+account.data: Dane konta
+sign in: Zaloguj się
+sign up: Zarejestruj się
+Personal details: Dane użytkownika
+logoutUser: Wyloguj się
+basket: Koszyk
+all.product: Produkty
+search: Szukaj
+look.product.category: Zobacz produkty w kategori
+product.in.category: Produkty w kategori
+Categories: Kategorie
+look.product: Zobacz produkt
+Enter a new password: Wprowadź nowe hasło
+popular.product: Popularne produkty
+new.product: Nowe produkty
+Basket: Koszyk
+Product.add.to.basket: Produkt dodany do koszyka
+add.checkout: Dodaj do koszyka
+description: Opis
+lack.description.product: Brak opisu
+product.list: Wszystkie produkty
+searched: Wyszukano
+Search phrase: Wyszukiwana fraza
+The given phrase has not been found. Try to write it differently.: Dla podanej frazy nie został wyszukany żaden produkt. Spróbuj wpisać to innaczej!
+signUp: Zarejestruj się
+Password: Hasło
+Repeat Password: Powtórz hasło
+Old password: Obecne hasło
+Save: Zapisz
+Sign-in: Zaloguj się
+Register account: Zarejestruj się
+Too many pieces of the product: Zbyt duża ilość
+Other information: Dodatkowa informacja
+Buy: Kup
+Post code: Kod pocztowy
+Description: Opis
+Product image: Obrazek produktu
+Admin password: Hasło administratora
+incorrect data provided: Podano nieprawidłowo dane
