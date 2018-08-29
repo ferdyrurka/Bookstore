@@ -4,7 +4,6 @@
 namespace App\Service;
 
 use App\Entity\User;
-use App\Request\CreateUserOrAdminInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -36,20 +35,15 @@ class SecurityService
     }
 
     /**
-     * @param CreateUserOrAdminInterface $createUserRequest
+     * @param User $user
      * @param string $role
      */
-    public function saveUser(CreateUserOrAdminInterface $createUserRequest, string $role): void
+    public function saveUser(User $user, string $role): void
     {
-        $user = new User();
-        $user->setUsername($createUserRequest->getUsername());
-        $user->setEmail($createUserRequest->getEmail());
-        $user->setFirstName($createUserRequest->getFirstName());
-        $user->setSurname($createUserRequest->getSurname());
         $user->setRoles($role);
         $user->setStatus(1);
 
-        $user->setPassword($this->encoder->encodePassword($user, $createUserRequest->getPlainPassword()));
+        $user->setPassword($this->encoder->encodePassword($user, $user->getPlainPassword()));
 
         $this->em->persist($user);
         $this->em->flush();

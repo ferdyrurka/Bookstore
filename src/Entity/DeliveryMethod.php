@@ -4,6 +4,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -30,6 +31,11 @@ class DeliveryMethod
     private $cost;
 
     /**
+     * @Assert\NotBlank(message="not.blank.fields")
+     */
+    private $deliveryMethodId;
+
+    /**
      * @return int
      */
     public function getId(): int
@@ -51,6 +57,22 @@ class DeliveryMethod
     public function getCost(): int
     {
         return $this->cost;
+    }
+
+    /**
+     * @return DeliveryMethod|null
+     */
+    public function getDeliveryMethodId(): ?DeliveryMethod
+    {
+        return $this->deliveryMethodId;
+    }
+
+    /**
+     * @param DeliveryMethod|null $deliveryMethodId
+     */
+    public function setDeliveryMethodId(?DeliveryMethod $deliveryMethodId): void
+    {
+        $this->deliveryMethodId = $deliveryMethodId;
     }
 
     /**

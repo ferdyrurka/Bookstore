@@ -5,8 +5,6 @@ namespace App\Service\Controller\Admin;
 
 use App\Entity\Product;
 use App\Repository\ProductRepository;
-use App\Request\CreateProductRequest;
-use App\Request\UpdateProductRequest;
 use App\Service\UploadFile;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -52,24 +50,19 @@ class AdminProductService
     }
 
     /**
-     * @param CreateProductRequest $productRequest
+     * @param Product $product
      * @param UploadFile $uploadFile
      */
-    public function createProduct(CreateProductRequest $productRequest, UploadFile $uploadFile): void
+    public function createProduct(Product $product, UploadFile $uploadFile): void
     {
-        $product = new Product();
-        $product->setName($productRequest->getName());
-        $product->setPrice($productRequest->getPrice() * 100);
-        $product->setMagazine($productRequest->getMagazine());
+        $product->setPrice($product->getPriceFloat() * 100);
 
         $time = new \DateTime("now");
         $time->setTimezone(new \DateTimeZone('Europe/Warsaw'));
-
         $product->setCreatedAt($time);
-        $product->setDescription($productRequest->getDescription());
-        $product->setCategoryReferences($productRequest->getCategories()[0]->getCategoriesId());
+        $product->setCategoryReferences($product->getCategoriesId());
 
-        if (!empty($image = $productRequest->getUploadProductImage()[0]->getProductImage())) {
+        if (!empty($image = $product->getUploadProductImage()[0]->getProductImage())) {
             $this->em->persist($uploadFile->upload($image));
         }
 
@@ -78,22 +71,16 @@ class AdminProductService
     }
 
     /**
-     * @param UpdateProductRequest $productRequest
      * @param Product $product
      * @param UploadFile $uploadFile
      */
-    public function updateProduct(UpdateProductRequest $productRequest, Product $product, UploadFile $uploadFile): void
+    public function updateProduct(Product $product, UploadFile $uploadFile): void
     {
-        $product->setName($productRequest->getName());
-        $product->setPrice($productRequest->getPrice() * 100);
-        $product->setMagazine($productRequest->getMagazine());
-        $product->setDescription($productRequest->getDescription());
-        $product->setCategoryReferences($productRequest->getCategories()[0]->getCategoriesId());
+        $product->setPrice($product->getPriceFloat() * 100);
+        $product->setCategoryReferences($product->getCategoriesId());
 
-        if (!empty($image = $productRequest->getUploadProductImage()[0]->getProductImage())) {
-            $productImage = $uploadFile->upload($image);
-            $product->setProductImageReferences($productImage);
-            $this->em->persist($productImage);
+        if (!empty($image = $product->getUploadProductImage()[0]->getProductImage())) {
+            $this->em->persist($uploadFile->upload($image));
         }
 
         $this->em->persist($product);

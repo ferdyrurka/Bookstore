@@ -25,18 +25,4 @@ class CategoryController extends Controller implements SessionAttackInterface
     {
         return array('categories'=>$service->getCategories());
     }
-
-    /**
-     * @param CategoryService $service
-     * @param string $slug
-     * @return array
-     * @Route("/products-in-category/{slug}", methods={"GET"}, name="productsCategoryList.category")
-     * @Template("category/products-category-list.html.twig")
-     */
-    public function productsCategoryListAction(
-        CategoryService $service,
-        string $slug
-    ): array {
-        return array('products' => $service->getProductList($slug));
-    }
 }

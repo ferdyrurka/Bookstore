@@ -3,7 +3,7 @@
 
 namespace App\Form\Type;
 
-use App\Request\DeliveryMethodRequest;
+use App\Entity\DeliveryMethod;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -38,7 +38,7 @@ class DeliveryMethodFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(array(
-            'data_class' => DeliveryMethodRequest::class,
+            'data_class' => DeliveryMethod::class,
         ));
     }
 }

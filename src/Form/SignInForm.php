@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Form;
 
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -30,7 +29,6 @@ class SignInForm extends AbstractType
             ->add('sign-in', SubmitType::class)
         ;
     }
-
     /**
      * @param OptionsResolver $resolver
      */

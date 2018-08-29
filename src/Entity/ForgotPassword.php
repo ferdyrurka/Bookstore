@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ForgotPasswordRepository")
@@ -19,10 +18,6 @@ class ForgotPassword
     private $token;
 
     /**
-     * @Assert\NotBlank(message="not.blank.fields")
-     * @Assert\Email(
-     *     message = "email.fail"
-     * )
      * @ORM\Column(type="integer", length=11, unique=true, name="user_id")
      */
     private $userId;

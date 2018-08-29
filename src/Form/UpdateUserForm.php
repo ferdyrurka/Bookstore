@@ -27,10 +27,18 @@ class UpdateUserForm extends AbstractType
         $builder
             ->add('email', EmailType::class)
             ->add('first_name', TextType::class, array(
-                'trim' => true
+                'trim' => true,
+                'attr' => [
+                    'maxlength' => 3,
+                    'minlength' => 24,
+                ],
             ))
             ->add('surname', TextType::class, array(
-                'trim' => true
+                'trim' => true,
+                'attr' => [
+                    'maxlength' => 4,
+                    'minlength' => 32,
+                ],
             ))
             ->add('password', PasswordType::class)
             ->add('save', SubmitType::class)

@@ -19,47 +19,55 @@ class ViewProductServiceTest extends TestCase
 {
     use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
+    private $viewProductService;
+    private $em;
+    private $userAgent;
+    private $viewProductRepository;
+
+    public function setUp()
+    {
+
+        $this->viewProductRepository = Mockery::mock(ViewProductRepository::class);
+        $this->em = Mockery::mock(EntityManagerInterface::class);
+        $this->userAgent = Mockery::mock(UserAgent::class);
+
+        $this->viewProductService = new ViewProductService($this->em, $this->userAgent, $this->viewProductRepository);
+        parent::setUp();
+    }
+
     /**
      * @throws \Exception
      */
     public function testAddView(): void
     {
-        $em = Mockery::mock(EntityManagerInterface::class);
-        $em->shouldReceive('persist')->withArgs(array(ViewProduct::class))->once();
-        $em->shouldReceive('flush')->once();
-        $userAgent = Mockery::mock(UserAgent::class);
-        $userAgent->shouldReceive('getIp')->andReturn('192.168.1.1')->once();
-        $userAgent->shouldReceive('getUserAgent')->andReturn('Windows 10')->once();
+        $this->em->shouldReceive('persist')->withArgs(array(ViewProduct::class))->once();
+        $this->em->shouldReceive('flush')->once();
 
-        $viewProducts = new ViewProductService($em, $userAgent);
+        $this->userAgent->shouldReceive('getIp')->andReturn('192.168.1.1')->once();
+        $this->userAgent->shouldReceive('getUserAgent')->andReturn('Windows 10')->once();
 
-        $this->assertNull($viewProducts->addView(1, 1));
+        $this->assertNull($this->viewProductService->addView(1, 1));
     }
 
     public function testGetPopularProducts(): void
     {
-        $em = Mockery::mock(EntityManagerInterface::class);
-        $userAgent = Mockery::mock(UserAgent::class);
-        $viewProducts = new ViewProductService($em, $userAgent);
-
-        $viewProductsRepository = Mockery::mock(ViewProductRepository::class);
-        $viewProductsRepository
+        $this->viewProductRepository
             ->shouldReceive('findPopularProducts')
             ->withArgs(array(6))
             ->once()
             ->andReturn(array(new Product()))
         ;
 
-        $this->assertNotEmpty($viewProducts->getPopularProducts(6, $viewProductsRepository));
+        $this->assertNotEmpty($this->viewProductService->getPopularProducts(6, $this->viewProductRepository));
 
-        $viewProductsRepository
+        $this->viewProductRepository
             ->shouldReceive('findPopularProducts')
             ->withArgs(array(6))
             ->once()
             ->andReturn(null)
         ;
 
-        $this->assertEmpty($viewProducts->getPopularProducts(6, $viewProductsRepository));
+        $this->assertEmpty($this->viewProductService->getPopularProducts(6, $this->viewProductRepository));
     }
 
     public function tearDown(): void

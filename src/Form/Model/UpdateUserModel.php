@@ -1,19 +1,19 @@
 <?php
 
 
-namespace App\Request;
+namespace App\Form\Model;
 
 use App\Entity\User;
-use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator\Constraint\UniqueField;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\Validator\Constraints as SecurityAssert;
 
 /**
- * Class UpdateUserRequest
- * @package App\Request
+ * Class UpdateUserModel
+ * @package App\Form\Model
  * @UniqueField(entityClass="App\Entity\User", field="email")
  */
-class UpdateUserRequest
+class UpdateUserModel
 {
     /**
      * @var integer
@@ -31,7 +31,6 @@ class UpdateUserRequest
      */
     private $firstName;
 
-
     /**
      * @Assert\NotBlank(message="not.blank.fields")
      * @Assert\Length(
@@ -42,7 +41,6 @@ class UpdateUserRequest
      * )
      */
     private $surname;
-
 
     /**
      * @Assert\NotBlank(message="not.blank.fields")
@@ -57,7 +55,6 @@ class UpdateUserRequest
      * )
      */
     private $email;
-
 
     /**
      * @Assert\NotBlank(message="password.not.empty")
@@ -142,7 +139,6 @@ class UpdateUserRequest
     {
         return $this->password;
     }
-
     /**
      * @param string $password
      */

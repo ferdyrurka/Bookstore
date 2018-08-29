@@ -29,12 +29,20 @@ class CategoryForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class)
+            ->add('name', TextType::class, array(
+                'attr' => [
+                    'maxlength' => 64,
+                    'minlength' => 3,
+                ],
+            ))
             ->add('description', CKEditorType::class, array(
                 'config' => array(
                     'uiColor'=>'#ffffff',
                 ),
-                'required' => false
+                'required' => false,
+                'attr' => [
+                    'maxlength' => 128,
+                ],
             ))
             ->add('save', SubmitType::class)
         ;

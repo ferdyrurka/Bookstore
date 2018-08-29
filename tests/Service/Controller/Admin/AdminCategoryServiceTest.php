@@ -40,16 +40,12 @@ class AdminCategoryServiceTest extends TestCase
         $this->assertNull($this->adminCategoryService->deleteCategory(1));
     }
 
-    public function testCreateCategory(): void
+    public function testSaveCategory(): void
     {
-        $categoryRequest = Mockery::mock(CategoryRequest::class);
-        $categoryRequest->shouldReceive('getName')->andReturn('name')->once();
-        $categoryRequest->shouldReceive('getDescription')->andReturn('description')->once();
-
         $this->em->shouldReceive('persist')->withArgs(array(Category::class))->once();
         $this->em->shouldReceive('flush')->once();
 
-        $this->assertNull($this->adminCategoryService->createCategory($categoryRequest));
+        $this->assertNull($this->adminCategoryService->saveCategory(new Category()));
     }
 
     public function testGetCategory(): void
@@ -64,22 +60,6 @@ class AdminCategoryServiceTest extends TestCase
         $result = $this->adminCategoryService->getAll();
         $this->assertEmpty($result);
         $this->assertTrue(is_array($result));
-    }
-
-    public function testUpdateCategory(): void
-    {
-        $category = Mockery::mock(Category::class);
-        $category->shouldReceive('setName')->withArgs(array('name'))->once();
-        $category->shouldReceive('setDescription')->withArgs(array('description'))->once();
-
-        $categoryRequest = Mockery::mock(CategoryRequest::class);
-        $categoryRequest->shouldReceive('getName')->andReturn('name')->once();
-        $categoryRequest->shouldReceive('getDescription')->andReturn('description')->once();
-
-        $this->em->shouldReceive('persist')->withArgs(array(Category::class))->once();
-        $this->em->shouldReceive('flush')->once();
-
-        $this->assertNull($this->adminCategoryService->updateCategory($categoryRequest, $category));
     }
 
     public function tearDown(): void

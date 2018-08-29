@@ -3,10 +3,9 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Form\CreateUserForm;
 use App\Form\SignInForm;
-use App\Request\CreateUserRequest;
-use App\Request\SignInRequest;
 use App\Service\SecurityService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -44,7 +43,7 @@ class SecurityController extends Controller
      */
     public function registerAction(Request $request): array
     {
-        $form = $this->createForm(CreateUserForm::class, new CreateUserRequest());
+        $form = $this->createForm(CreateUserForm::class, new User());
 
         $form->handleRequest($request);
 
@@ -62,11 +61,11 @@ class SecurityController extends Controller
      */
     public function saveUserAction(SecurityService $service, Request $request): Response
     {
-        $form = $this->createForm(CreateUserForm::class, new CreateUserRequest());
+        $form = $this->createForm(CreateUserForm::class, new User());
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $service->saveUser($form->getData(), 'ROLE_USER');
 
             return $this->redirectToRoute('login');
@@ -80,12 +79,14 @@ class SecurityController extends Controller
      * @param AuthenticationUtils $authenticationUtils
      * @return array
      * @Route("sign-in", methods={"GET", "POST"}, name="login.security")
+     * @Route("/admin1999", methods={"GET", "POST"}, name="login.adminSecurity")
      * @Template("security/index.html.twig")
      * @Security("not has_role('ROLE_USER')")
+     * @Security("not has_role('ROLE_ADMIN')")
      */
     public function indexAction(TranslatorInterface $translator, AuthenticationUtils $authenticationUtils): array
     {
-        $form = $this->createForm(SignInForm::class, new SignInRequest());
+        $form = $this->createForm(SignInForm::class);
 
         $error = $authenticationUtils->getLastAuthenticationError();
 
@@ -106,6 +107,7 @@ class SecurityController extends Controller
 
     /**
      * @Route("/log-out", methods={"GET"}, name="logout.security")
+     * @Route("/admin1999/log-out", methods={"GET"}, name="logout.adminSecurity")
      */
     public function logoutAction(): void
     {

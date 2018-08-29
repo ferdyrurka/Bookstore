@@ -5,10 +5,13 @@ namespace App\Entity;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="category")
+ * @UniqueEntity("name")
  */
 class Category
 {
@@ -22,11 +25,25 @@ class Category
 
     /**
      * @ORM\Column(type="string", unique=true)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Length(
+     *      min="3",
+     *      max="64",
+     *      minMessage="min.length {{limit}}",
+     *      maxMessage="max.length {{limit}}",
+     * )
+     * @Assert\Regex(
+     *     pattern="/^([A-ZĄĆĘŁŃÓŚŹŻ|a-ząćęłnóśźż| |-|&|0-9|.|,]){3,64}$/",
+     *     message="incorrect data provided",
+     * )
      */
     private $name;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Assert\Length(
+     *      max="128"
+     * )
      */
     private $description;
 
@@ -42,9 +59,9 @@ class Category
     private $productReferences;
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId() :int
+    public function getId() :?int
     {
         return $this->id;
     }
@@ -52,7 +69,7 @@ class Category
     /**
      * @return null|string
      */
-    public function getName() :string
+    public function getName() :?string
     {
         return $this->name;
     }

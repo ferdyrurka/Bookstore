@@ -20,13 +20,12 @@ class SecurityServiceTest extends TestCase
 
     public function testSaveUser(): void
     {
-        $createUserRequest = Mockery::mock(CreateUserRequest::class);
+        $user = Mockery::mock(User::class);
 
-        $createUserRequest->shouldReceive('getUsername')->once()->andReturn('Username');
-        $createUserRequest->shouldReceive('getEmail')->once()->andReturn('kontakt@lukaszstaniszewski.pl');
-        $createUserRequest->shouldReceive('getFirstName')->once()->andReturn('First name');
-        $createUserRequest->shouldReceive('getSurname')->once()->andReturn('Surname');
-        $createUserRequest->shouldReceive('getPlainPassword')->once()->andReturn('password_plain');
+        $user->shouldReceive('getPlainPassword')->once()->andReturn('password_plain');
+        $user->shouldReceive('setRoles')->once()->withArgs(array('ROLE_USER'));
+        $user->shouldReceive('setStatus')->once()->withArgs(array(1));
+        $user->shouldReceive('setPassword')->once();
 
         $userPasswordEncoder = Mockery::mock(UserPasswordEncoderInterface::class);
 
@@ -43,7 +42,7 @@ class SecurityServiceTest extends TestCase
         $em->shouldReceive('flush')->once();
 
         $securityService = new SecurityService($userPasswordEncoder, $em);
-        $this->assertNull($securityService->saveUser($createUserRequest, 'ROLE_USER'));
+        $this->assertNull($securityService->saveUser($user, 'ROLE_USER'));
     }
 
     public function tearDown(): void

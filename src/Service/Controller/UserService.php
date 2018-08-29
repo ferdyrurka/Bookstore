@@ -4,8 +4,7 @@
 namespace App\Service\Controller;
 
 use App\Entity\User;
-use App\Repository\ForgotPasswordRepository;
-use App\Request\UpdateUserRequest;
+use App\Form\Model\UpdateUserModel;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -30,9 +29,9 @@ class UserService
 
     /**
      * @param User $user
-     * @param UpdateUserRequest $updateUserRequest
+     * @param UpdateUserModel $updateUserRequest
      */
-    public function savePersonalDetails(User $user, UpdateUserRequest $updateUserRequest): void
+    public function savePersonalDetails(User $user, UpdateUserModel $updateUserRequest): void
     {
         $user->setFirstName($updateUserRequest->getFirstName());
         $user->setSurname($updateUserRequest->getSurname());

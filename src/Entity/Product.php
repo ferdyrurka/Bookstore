@@ -7,10 +7,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  * @ORM\Table(name="product")
+ * @UniqueEntity("name")
+ * @UniqueEntity("slug")
  */
 class Product
 {
@@ -23,6 +26,17 @@ class Product
 
     /**
      * @ORM\Column(type="string",length=128, unique=true)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Length(
+     *      min=6,
+     *      max=128,
+     *      minMessage="min.length {{limit}}",
+     *      maxMessage="max.length {{limit}}",
+     * )
+     * @Assert\Regex(
+     *     pattern="/^([A-ZĄĆĘŁŃÓŚŹŻ|a-ząćęłnóśźż|0-9|-| |.|,]){3,128}$/",
+     *     message="incorrect data provided"
+     * )
      */
     private $name;
 
@@ -33,6 +47,7 @@ class Product
 
     /**
      * @var float
+     * @Assert\NotBlank(message="not.blank.fields")
      */
     private $priceFloat;
 
@@ -43,6 +58,11 @@ class Product
 
     /**
      * @ORM\Column(type="integer",length=11)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Regex(
+     *     pattern="/^[0-9]{1,9}$/",
+     *     message="incorrect data provided"
+     * )
      */
     private $magazine;
 
@@ -82,17 +102,24 @@ class Product
     private $categoryReferences;
 
     /**
-     * @return int
+     * @Assert\Valid()
      */
-    public function getId(): int
+    private $uploadProductImage;
+
+    private $categoriesId;
+
+    /**
+     * @return int|null
+     */
+    public function getId(): ?int
     {
         return $this->id;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -122,9 +149,9 @@ class Product
     }
 
     /**
-     * @return float
+     * @return float|null
      */
-    public function getPriceFloat(): float
+    public function getPriceFloat(): ?float
     {
         return $this->priceFloat;
     }
@@ -154,9 +181,9 @@ class Product
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getMagazine(): int
+    public function getMagazine(): ?int
     {
         return $this->magazine;
     }
@@ -186,9 +213,9 @@ class Product
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getSlug(): string
+    public function getSlug(): ?string
     {
         return $this->slug;
     }
@@ -202,9 +229,9 @@ class Product
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getCreatedAt(): string
+    public function getCreatedAt(): ?string
     {
         return $this->createdAt->format('Y-m-d H:i:s');
     }
@@ -247,5 +274,41 @@ class Product
     public function setProductImageReferences(ProductImage $productImage): void
     {
         $this->productImageReferences = $productImage;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUploadProductImage(): array
+    {
+        if (empty($this->uploadProductImage)) {
+            return [new ProductImage()];
+        } else {
+            return $this->uploadProductImage;
+        }
+    }
+
+    /**
+     * @param array $uploadProductImage
+     */
+    public function setUploadProductImage(array $uploadProductImage): void
+    {
+        $this->uploadProductImage = $uploadProductImage;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCategoriesId()
+    {
+        return $this->categoriesId;
+    }
+
+    /**
+     * @param mixed $categoriesId
+     */
+    public function setCategoriesId($categoriesId): void
+    {
+        $this->categoriesId = $categoriesId;
     }
 }

@@ -9,11 +9,6 @@ use App\Entity\Product;
 use App\Entity\User;
 use App\Model\SendMailOrder;
 use App\Repository\OrderRepository;
-use App\Repository\ProductRepository;
-use App\Repository\UserRepository;
-use App\Request\CreateOrderRequest;
-use App\Request\DeliveryMethodRequest;
-use App\Request\PriceMethodRequest;
 use App\Service\Controller\CartService;
 use App\Service\Controller\OrderService;
 use App\Service\Controller\ProductService;
@@ -35,15 +30,19 @@ class OrderServiceTest extends TestCase
     use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
     private $cartService;
-    private $productService;
     private $orderService;
+    private $orderRepository;
+    private $em;
+    private $sendMail;
 
     public function setUp(): void
     {
         $this->cartService = Mockery::mock(CartService::class);
-        $this->productService = Mockery::mock(ProductService::class);
+        $this->em = Mockery::mock(EntityManagerInterface::class);
+        $this->orderRepository = Mockery::mock(OrderRepository::class);
+        $this->sendMail = Mockery::mock(SendMail::class);
 
-        $this->orderService = new OrderService($this->cartService, $this->productService);
+        $this->orderService = new OrderService($this->cartService, $this->em, $this->orderRepository, $this->sendMail);
 
         parent::setUp();
     }
@@ -51,10 +50,8 @@ class OrderServiceTest extends TestCase
 
     public function testGetFilledForm(): void
     {
-        $orderRepository = Mockery::mock(OrderRepository::class);
-
-        $result = $this->orderService->getFilledForm($orderRepository);
-        $this->assertInstanceOf(CreateOrderRequest::class, $result);
+        $result = $this->orderService->getFilledForm();
+        $this->assertInstanceOf(Order::class, $result);
         $this->assertNull($result->getFirstName());
         $this->assertNull($result->getSurname());
         $this->assertNull($result->getEmail());
@@ -75,77 +72,58 @@ class OrderServiceTest extends TestCase
         $order->shouldReceive('getPostCode')->once()->andReturn('11-230');
         $order->shouldReceive('getPhone')->once()->andReturn(123456789);
 
-        $orderRepository->shouldReceive('findOneByUserId')->withArgs(array(1))->times(2)->andReturn(null, $order);
+        $this->orderRepository->shouldReceive('findOneByUserId')->withArgs(array(1))->times(2)->andReturn(null, $order);
 
-        $result = $this->orderService->getFilledForm($orderRepository, $user);
-        $this->assertInstanceOf(CreateOrderRequest::class, $result);
+        $result = $this->orderService->getFilledForm($user);
+        $this->assertInstanceOf(Order::class, $result);
 
-        $result = $this->orderService->getFilledForm($orderRepository, $user);
-        $this->assertInstanceOf(CreateOrderRequest::class, $result);
+        $result = $this->orderService->getFilledForm($user);
+        $this->assertInstanceOf(Order::class, $result);
     }
 
     public function testGetCart(): void
     {
-        $session = Mockery::mock(SessionInterface::class);
-        $session->shouldReceive('get')->withArgs(array('cart_id'))->times(2)->andReturn(123456789);
-
-        $request = Mockery::mock(Request::class);
-        $request->shouldReceive('getSession')->times(2)->andReturn($session);
-        $request->shouldReceive('getLocale')->once()->andReturn('pl');
-
         $this->cartService
             ->shouldReceive('getCart')
             ->once()
             ->withArgs(array(
                 123456789,
-                'pl',
-                ProductService::class,
                 false,
                 false
             ))
             ->andReturn(array('Cart'))
         ;
 
-        $result = $this->orderService->getCart(123456789, $request);
+        $result = $this->orderService->getCart(123456789);
         $this->assertNotEmpty($result);
         $this->assertTrue(is_array($result));
 
-        $request->shouldReceive('getLocale')->never();
-
         $this->expectException(Exception::class);
-        $this->orderService->getCart(1234567899, $request);
+        $this->orderService->getCart(1234567899);
     }
 
     public function testCreateOrder(): void
     {
-        $priceMethod = Mockery::mock(PriceMethodRequest::class);
+        $priceMethod = Mockery::mock(PriceMethod::class);
         $priceMethod->shouldReceive('getPriceMethodId')->once()->andReturn(new PriceMethod());
 
         $deliveryMethodEntity = Mockery::mock(DeliveryMethod::class);
         $deliveryMethodEntity->shouldReceive('getCost')->once()->andReturn(10.00);
 
-        $deliveryMethod = Mockery::mock(DeliveryMethodRequest::class);
+        $deliveryMethod = Mockery::mock(DeliveryMethod::class);
         $deliveryMethod->shouldReceive('getDeliveryMethodId')->once()->andReturn($deliveryMethodEntity);
 
-        $createOrderRequest = Mockery::mock(CreateOrderRequest::class);
-        $createOrderRequest->shouldReceive('getFirstName')->times(2)->andReturn('First Name');
-        $createOrderRequest->shouldReceive('getSurname')->times(2)->andReturn('Surname');
-        $createOrderRequest->shouldReceive('getEmail')->times(2)->andReturn('kontakt@lukaszstaniszewski.pl');
-        $createOrderRequest->shouldReceive('getCity')->once()->andReturn('City');
-        $createOrderRequest->shouldReceive('getStreet')->once()->andReturn('Street');
-        $createOrderRequest->shouldReceive('getHouseNumber')->once()->andReturn('2/2');
-        $createOrderRequest->shouldReceive('getPostCode')->once()->andReturn('11-230');
-        $createOrderRequest->shouldReceive('getPhone')->once()->andReturn(123456789);
-        $createOrderRequest->shouldReceive('getOtherInformation')->once()->andReturnNull();
-        $createOrderRequest->shouldReceive('getPriceMethods')->once()->andReturn(array(0 => $priceMethod));
-        $createOrderRequest->shouldReceive('getDeliveryMethods')->once()->andReturn(array(0 => $deliveryMethod));
-
-        $session = Mockery::mock(SessionInterface::class);
-        $session->shouldReceive('get')->withArgs(array('cart_id'))->times(2)->andReturn(123456789);
-
-        $request = Mockery::mock(Request::class);
-        $request->shouldReceive('getSession')->times(2)->andReturn($session);
-        $request->shouldReceive('getLocale')->times(1)->andReturn('pl');
+        $order = Mockery::mock(Order::class);
+        $order->shouldReceive('getFirstName')->once()->andReturn('First Name');
+        $order->shouldReceive('getSurname')->once()->andReturn('Surname');
+        $order->shouldReceive('getEmail')->once()->andReturn('kontakt@lukaszstaniszewski.pl');
+        $order->shouldReceive('getPriceMethods')->once()->andReturn(array(0 => $priceMethod));
+        $order->shouldReceive('getDeliveryMethods')->once()->andReturn(array(0 => $deliveryMethod));
+        $order->shouldReceive('setPriceMethodReferences')->once()->withArgs([PriceMethod::class]);
+        $order->shouldReceive('setDeliveryMethodReferences')->once()->withArgs([DeliveryMethod::class]);
+        $order->shouldReceive('setUserReferences')->once()->withArgs([null]);
+        $order->shouldReceive('setCost')->once();
+        $order->shouldReceive('setProducts')->once();
 
         $product = Mockery::mock(Product::class);
         $product->shouldReceive('setMagazine')->withArgs(array(3))->once();
@@ -156,8 +134,6 @@ class OrderServiceTest extends TestCase
             ->once()
             ->withArgs(array(
                 123456789,
-                'pl',
-                ProductService::class,
                 false,
                 true
             ))
@@ -167,14 +143,11 @@ class OrderServiceTest extends TestCase
         $this->cartService
             ->shouldReceive('deleteCart')
             ->once()
-            ->withArgs(array(123456789, $request))
+            ->withArgs(array(123456789))
             ->andReturn(array())
         ;
 
-        $this->productService->shouldReceive('getProduct')->withArgs(array(2, 'pl'))->never()->andReturn($product);
-
-        $em = Mockery::mock(EntityManagerInterface::class);
-        $em->shouldReceive('persist')->with(
+        $this->em->shouldReceive('persist')->with(
             Mockery::on(function ($argument) {
                 if ($argument instanceof Product || $argument instanceof Order){
                     return true;
@@ -182,14 +155,13 @@ class OrderServiceTest extends TestCase
                 return false;
             })
         )->times(2);
-        $em->shouldReceive('flush')->once();
+        $this->em->shouldReceive('flush')->once();
 
-        $sendMail = Mockery::mock(SendMail::class);
-        $sendMail->shouldReceive('sendMail')->once()->withArgs([SendMailOrder::class])->andReturn(true);
+        $this->sendMail->shouldReceive('sendMail')->once()->withArgs([SendMailOrder::class])->andReturn(true);
 
-        $this->orderService->createOrder(123456789, $createOrderRequest, $request, $em, $sendMail);
+        $this->orderService->createOrder(123456789, $order);
 
         $this->expectException(Exception::class);
-        $this->orderService->createOrder(1234567890, $createOrderRequest, $request, $em, $sendMail);
+        $this->orderService->createOrder(1234567890, $order);
     }
 }

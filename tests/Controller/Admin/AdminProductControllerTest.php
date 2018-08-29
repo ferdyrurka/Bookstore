@@ -62,13 +62,13 @@ class AdminProductControllerTest extends WebTestCase
         $crawler = $this->admin->request('GET', '/admin1999/create-product');
         $this->assertEquals(200, $this->admin->getResponse()->getStatusCode());
 
-        $buttonCrawlerNode = $crawler->selectButton('create_product_form[save]');
+        $buttonCrawlerNode = $crawler->selectButton('product_form[save]');
 
         $formData = array(
-            'create_product_form[name]' => 'Product name',
-            'create_product_form[price]' => 10.10,
-            'create_product_form[magazine]' => 30,
-            'create_product_form[description]' => 'Hello world'
+            'product_form[name]' => 'Product name',
+            'product_form[price_float]' => 10.10,
+            'product_form[magazine]' => 30,
+            'product_form[description]' => 'Hello world'
         );
 
         $form = $buttonCrawlerNode->form($formData);
@@ -99,13 +99,13 @@ class AdminProductControllerTest extends WebTestCase
         $crawler = $this->admin->request('GET', '/admin1999/update-product/'.$id);
         $this->assertEquals(200, $this->admin->getResponse()->getStatusCode());
 
-        $buttonCrawlerNode = $crawler->selectButton('update_product_form[save]');
+        $buttonCrawlerNode = $crawler->selectButton('product_form[save]');
 
         $formData = array(
-            'update_product_form[name]' => 'UpdateProduct',
-            'update_product_form[price]' => 10.10,
-            'update_product_form[magazine]' => 30,
-            'update_product_form[description]' => 'Hello world',
+            'product_form[name]' => 'UpdateProduct',
+            'product_form[price_float]' => 10.10,
+            'product_form[magazine]' => 30,
+            'product_form[description]' => 'Hello world',
         );
 
         $form = $buttonCrawlerNode->form($formData);

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Request;
+namespace App\Form\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Class ForgotPasswordRequest
  * @package App\Request
  */
-class ForgotPasswordRequest
+class ForgotPasswordModel
 {
     /**
      * @Assert\NotBlank(message="not.blank.fields")

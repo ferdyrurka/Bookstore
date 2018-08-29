@@ -5,11 +5,9 @@ namespace App\Controller;
 
 use App\Security\SessionAttackInterface;
 use App\Service\Controller\ProductService;
-use App\Service\Controller\ViewProductService;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class ProductController
@@ -18,20 +16,16 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductController extends Controller implements SessionAttackInterface
 {
     /**
-     * @param Request $request
      * @param ProductService $service
      * @param string $slug
-     * @param ViewProductService $viewProductService
      * @return array
      * @throws \Exception
      * @Route("/product/{slug}", methods={"GET"}, name="index.product")
      * @Template("product/index.html.twig")
      */
     public function indexAction(
-        Request $request,
         ProductService $service,
-        string $slug,
-        ViewProductService $viewProductService
+        string $slug
     ): array {
         if (!empty($userId = $this->getUser())) {
             $userId = $userId->getId();
@@ -42,8 +36,6 @@ class ProductController extends Controller implements SessionAttackInterface
         return array(
             'product' => $service->getProductBySlug(
                 $slug,
-                $request->getLocale(),
-                $viewProductService,
                 $userId
             )
         );
@@ -58,5 +50,18 @@ class ProductController extends Controller implements SessionAttackInterface
     public function productsListAction(ProductService $service): array
     {
         return array('products' => $service->getProducts());
+    }
+
+
+    /**
+     * @param ProductService $service
+     * @param string $slug
+     * @return array
+     * @Route("/products-in-category/{slug}", methods={"GET"}, name="productsCategoryList.product")
+     * @Template("product/products-category-list.html.twig")
+     */
+    public function productsCategoryListAction(ProductService $service, string $slug): array
+    {
+        return array('products' => $service->getProductInCategory($slug));
     }
 }

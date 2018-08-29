@@ -73,16 +73,14 @@ class AdminProductServiceTest extends TestCase
         $uploadProductImage = Mockery::mock(UploadProductImageRequest::class);
         $uploadProductImage->shouldReceive('getProductImage')->times(2)->andReturn(null, $uploadedFile);
 
-        $selectCategories = Mockery::mock(SelectCategoriesRequest::class);
-        $selectCategories->shouldReceive('getCategoriesId')->times(2)->andReturn(new ArrayCollection());
-
-        $productRequest = Mockery::mock(CreateProductRequest::class);
-        $productRequest->shouldReceive('getName')->times(2)->andReturn('name');
-        $productRequest->shouldReceive('getPrice')->times(2)->andReturn(10.01);
-        $productRequest->shouldReceive('getMagazine')->times(2)->andReturn(1);
-        $productRequest->shouldReceive('getDescription')->times(2)->andReturn('description');
-        $productRequest->shouldReceive('getUploadProductImage')->times(2)->andReturn(array($uploadProductImage));
-        $productRequest->shouldReceive('getCategories')->times(2)->andReturn(array($selectCategories));
+        $product = Mockery::mock(Product::class);
+        $product->shouldReceive('setCategoryReferences')->times(2)->withArgs(array(ArrayCollection::class));
+        $product->shouldReceive('setProductImageReferences')->zeroOrMoreTimes()->withArgs(array(ProductImage::class));
+        $product->shouldReceive('setPrice')->withArgs(array(1000))->times(2);
+        $product->shouldReceive('setCreatedAt')->times(2)->withArgs(array(\DateTime::class));
+        $product->shouldReceive('getPriceFloat')->times(2)->andReturn(10);
+        $product->shouldReceive('getUploadProductImage')->times(2)->andReturn(array($uploadProductImage));
+        $product->shouldReceive('getCategoriesId')->times(2)->andReturn(new ArrayCollection());
 
         $this->em->shouldReceive('persist')->withArgs(array(Product::class))->once();
         $this->em->shouldReceive('flush')->times(2);
@@ -90,7 +88,7 @@ class AdminProductServiceTest extends TestCase
         $uploadFile = Mockery::mock(UploadFile::class);
         $uploadFile->shouldReceive('upload')->andReturn(new ProductImage())->once();
 
-        $this->assertNull($this->adminProductService->createProduct($productRequest, $uploadFile));
+        $this->assertNull($this->adminProductService->createProduct($product, $uploadFile));
 
         /**
          * Tests added a product image
@@ -109,7 +107,7 @@ class AdminProductServiceTest extends TestCase
             )
             ->times(2);
 
-        $this->assertNull($this->adminProductService->createProduct($productRequest, $uploadFile));
+        $this->assertNull($this->adminProductService->createProduct($product, $uploadFile));
     }
 
     public function testGetProduct(): void
@@ -124,30 +122,19 @@ class AdminProductServiceTest extends TestCase
 
     public function testUpdateProduct(): void
     {
-        $product = Mockery::mock(Product::class);
-        $product->shouldReceive('setName')->times(2)->withArgs(array('name'));
-        $product->shouldReceive('setPrice')->times(2)->withArgs(array(1001));
-        $product->shouldReceive('setMagazine')->times(2)->withArgs(array(1));
-        $product->shouldReceive('setDescription')->times(2)->withArgs(array('description'));
-        $product->shouldReceive('setProductImageReferences')->never();
-        $product->shouldReceive('setCategoryReferences')->times(2)->withArgs(array(ArrayCollection::class));
-        $product->shouldReceive('setProductImageReferences')->once()->withArgs(array(ProductImage::class));
-
         $uploadedFile = Mockery::mock(UploadedFile::class);
 
         $uploadProductImage = Mockery::mock(UploadProductImageRequest::class);
         $uploadProductImage->shouldReceive('getProductImage')->times(2)->andReturn(null, $uploadedFile);
 
-        $selectCategories = Mockery::mock(SelectCategoriesRequest::class);
-        $selectCategories->shouldReceive('getCategoriesId')->times(2)->andReturn(new ArrayCollection());
-
-        $productRequest = Mockery::mock(UpdateProductRequest::class);
-        $productRequest->shouldReceive('getName')->times(2)->andReturn('name');
-        $productRequest->shouldReceive('getPrice')->times(2)->andReturn(10.01);
-        $productRequest->shouldReceive('getMagazine')->times(2)->andReturn(1);
-        $productRequest->shouldReceive('getDescription')->times(2)->andReturn('description');
-        $productRequest->shouldReceive('getUploadProductImage')->times(2)->andReturn(array($uploadProductImage));
-        $productRequest->shouldReceive('getCategories')->times(2)->andReturn(array($selectCategories));
+        $product = Mockery::mock(Product::class);
+        $product->shouldReceive('setCategoryReferences')->times(2)->withArgs(array(ArrayCollection::class));
+        $product->shouldReceive('setProductImageReferences')->zeroOrMoreTimes()->withArgs(array(ProductImage::class));
+        $product->shouldReceive('setPrice')->withArgs(array(1000))->times(2);
+        $product->shouldReceive('setCreatedAt')->never();
+        $product->shouldReceive('getPriceFloat')->times(2)->andReturn(10);
+        $product->shouldReceive('getUploadProductImage')->times(2)->andReturn(array($uploadProductImage));
+        $product->shouldReceive('getCategoriesId')->times(2)->andReturn(new ArrayCollection());
 
         $this->em->shouldReceive('persist')->withArgs(array(Product::class))->once();
         $this->em->shouldReceive('flush')->times(2);
@@ -155,7 +142,7 @@ class AdminProductServiceTest extends TestCase
         $uploadFile = Mockery::mock(UploadFile::class);
         $uploadFile->shouldReceive('upload')->andReturn(new ProductImage())->once();
 
-        $this->assertNull($this->adminProductService->updateProduct($productRequest, $product, $uploadFile));
+        $this->assertNull($this->adminProductService->updateProduct($product, $uploadFile));
 
         /**
          * Tests added a product image
@@ -174,7 +161,7 @@ class AdminProductServiceTest extends TestCase
             )
             ->times(2);
 
-        $this->assertNull($this->adminProductService->updateProduct($productRequest, $product, $uploadFile));
+        $this->assertNull($this->adminProductService->updateProduct($product, $uploadFile));
     }
 
     public function testGetAll(): void

@@ -38,22 +38,4 @@ class CategoryService
 
         return $category;
     }
-
-    /**
-     * @param string $slug
-     * @return array
-     */
-    public function getProductList(string $slug): array
-    {
-        $slug = htmlspecialchars($slug);
-        $slug = str_replace(' ', '', $slug);
-
-        $category = $this->categoryRepository->getOneBySlug($slug)->getProductReferences()->getValues();
-
-        if (is_null($category)) {
-            return array();
-        }
-
-        return $category;
-    }
 }

@@ -7,8 +7,8 @@ use App\Entity\ForgotPassword;
 use App\Entity\User;
 use App\Exception\TokenNotFoundException;
 use App\Repository\ForgotPasswordRepository;
-use App\Request\ChangePasswordUserRequest;
-use App\Request\NewPasswordUserRequest;
+use App\Form\Model\ChangePasswordModel;
+use App\Form\Model\NewPasswordModel;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -29,20 +29,31 @@ class ChangePasswordService
     private $encoder;
 
     /**
+     * @var ForgotPasswordRepository
+     */
+    private $forgotPasswordRepository;
+
+    /**
      * ChangePasswordService constructor.
      * @param EntityManagerInterface $em
+     * @param UserPasswordEncoderInterface $encoder
+     * @param ForgotPasswordRepository $forgotPasswordRepository
      */
-    public function __construct(EntityManagerInterface $em, UserPasswordEncoderInterface $encoder)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        UserPasswordEncoderInterface $encoder,
+        ForgotPasswordRepository $forgotPasswordRepository
+    ) {
         $this->em = $em;
         $this->encoder = $encoder;
+        $this->forgotPasswordRepository = $forgotPasswordRepository;
     }
 
     /**
      * @param User $user
-     * @param ChangePasswordUserRequest $passwordUserRequest
+     * @param ChangePasswordModel $passwordUserRequest
      */
-    public function saveChangePassword(User $user, ChangePasswordUserRequest $passwordUserRequest): void
+    public function saveChangePassword(User $user, ChangePasswordModel $passwordUserRequest): void
     {
         $user->setPassword($this->encoder->encodePassword($user, $passwordUserRequest->getPlainPassword()));
 
@@ -51,15 +62,13 @@ class ChangePasswordService
 
     /**
      * @param ForgotPassword $forgotPassword
-     * @param NewPasswordUserRequest $newPasswordUserRequest
+     * @param NewPasswordModel $newPasswordUser
      */
-    public function saveNewPassword(
-        ForgotPassword $forgotPassword,
-        NewPasswordUserRequest $newPasswordUserRequest
-    ): void {
+    public function saveNewPassword(ForgotPassword $forgotPassword, NewPasswordModel $newPasswordUser): void
+    {
         $user = $forgotPassword->getUserReferences();
 
-        $user->setPassword($this->encoder->encodePassword($user, $newPasswordUserRequest->getPlainPassword()));
+        $user->setPassword($this->encoder->encodePassword($user, $newPasswordUser->getPlainPassword()));
 
         $this->em->remove($forgotPassword);
 
@@ -68,12 +77,11 @@ class ChangePasswordService
 
     /**
      * @param string $token
-     * @param ForgotPasswordRepository $forgotPasswordRepository
      * @return ForgotPassword
      */
-    public function getToken(string $token, ForgotPasswordRepository $forgotPasswordRepository): ForgotPassword
+    public function getToken(string $token): ForgotPassword
     {
-        $token = $forgotPasswordRepository->getOneByToken($token);
+        $token = $this->forgotPasswordRepository->getOneByToken($token);
 
         $time = new \DateTime("now");
         if (strtotime($token->getTimeCreate()) < strtotime($time->format('Y-m-d H:i:s'))) {

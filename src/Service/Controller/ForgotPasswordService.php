@@ -7,7 +7,7 @@ use App\Entity\ForgotPassword;
 use App\Model\SendMailForgotPassword;
 use App\Repository\ForgotPasswordRepository;
 use App\Repository\UserRepository;
-use App\Request\ForgotPasswordRequest;
+use App\Form\Model\ForgotPasswordModel;
 use App\Service\SendMail;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -57,12 +57,15 @@ class ForgotPasswordService
     }
 
     /**
-     * @param ForgotPasswordRequest $forgotPasswordRequest
+     * @param ForgotPasswordModel $forgotPasswordModel
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      * @throws \Exception
      */
-    public function createForgotPassword(ForgotPasswordRequest $forgotPasswordRequest): void
+    public function createForgotPassword(ForgotPasswordModel $forgotPasswordModel): void
     {
-        $user = $this->userRepository->getOneByEmail($forgotPasswordRequest->getEmail());
+        $user = $this->userRepository->getOneByEmail($forgotPasswordModel->getEmail());
 
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             throw new \Exception('Your account is admin. Administrator don\'t permission to forgot password.');
@@ -83,7 +86,7 @@ class ForgotPasswordService
         $this->em->flush();
 
         $sendMailForgotPassword = new SendMailForgotPassword();
-        $sendMailForgotPassword->setTo($forgotPasswordRequest->getEmail());
+        $sendMailForgotPassword->setTo($forgotPasswordModel->getEmail());
         $sendMailForgotPassword->setAttributes(array(
             'token' => $forgotPassword->getToken(),
         ));

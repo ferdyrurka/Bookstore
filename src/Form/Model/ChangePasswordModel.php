@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Request;
+namespace App\Form\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\Validator\Constraints as SecurityAssert;
@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Validator\Constraints as SecurityAssert;
  * Class ChangePasswordUserRequest
  * @package App\Request
  */
-class ChangePasswordUserRequest
+class ChangePasswordModel
 {
     /**
      * @Assert\NotBlank(message="password.not.empty")

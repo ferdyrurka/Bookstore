@@ -2,11 +2,9 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @ORM\Entity
@@ -41,6 +39,18 @@ class ProductImage
      * @ORM\OneToMany(targetEntity="Product", mappedBy="productImageReferences")
      */
     private $productReferences;
+
+    /**
+     * @Assert\Image(
+     *     mimeTypes={"image/jpeg","image/png","image/jpg"},
+     *     mimeTypesMessage="The possible file extension is jpg, jpeg, png.",
+     *     minWidth=200,
+     *     maxWidth=1920,
+     *     minHeight=200,
+     *     maxHeight=1280,
+     * )
+     */
+    private $productImage;
 
     /**
      * @return int
@@ -116,5 +126,21 @@ class ProductImage
     public function setProductReferences(Product $productReferences)
     {
         $this->productReferences = $productReferences;
+    }
+
+    /**
+     * @return null|UploadedFile
+     */
+    public function getProductImage(): ?UploadedFile
+    {
+        return $this->productImage;
+    }
+
+    /**
+     * @param null|UploadedFile $productImage
+     */
+    public function setProductImage(?UploadedFile $productImage): void
+    {
+        $this->productImage = $productImage;
     }
 }

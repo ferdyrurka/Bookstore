@@ -25,8 +25,20 @@ class NewPasswordUserForm extends AbstractType
         $builder
             ->add('plain_password', RepeatedType::class, array(
                'type' => PasswordType::class,
-                'first_options' => array('label' => 'Password'),
-                'second_options' => array('label' => 'Repeat password')
+                'first_options' => array(
+                    'label' => 'Password',
+                    'attr' => [
+                        'maxlength' => 8,
+                        'minlength' => 64,
+                    ],
+                ),
+                'second_options' => array(
+                    'label' => 'Repeat password',
+                    'attr' => [
+                        'maxlength' => 8,
+                        'minlength' => 64,
+                    ],
+                )
             ))
             ->add('save', SubmitType::class)
         ;

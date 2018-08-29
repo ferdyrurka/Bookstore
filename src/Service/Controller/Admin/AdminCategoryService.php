@@ -5,7 +5,6 @@ namespace App\Service\Controller\Admin;
 
 use App\Entity\Category;
 use App\Repository\CategoryRepository;
-use App\Request\CategoryRequest;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -36,27 +35,10 @@ class AdminCategoryService
     }
 
     /**
-     * @param CategoryRequest $categoryRequest
-     */
-    public function createCategory(CategoryRequest $categoryRequest): void
-    {
-        $category = new Category();
-        $category->setName($categoryRequest->getName());
-        $category->setDescription($categoryRequest->getDescription());
-
-        $this->em->persist($category);
-        $this->em->flush();
-    }
-
-    /**
-     * @param CategoryRequest $categoryRequest
      * @param Category $category
      */
-    public function updateCategory(CategoryRequest $categoryRequest, Category $category): void
+    public function saveCategory(Category $category): void
     {
-        $category->setName($categoryRequest->getName());
-        $category->setDescription($categoryRequest->getDescription());
-
         $this->em->persist($category);
         $this->em->flush();
     }

@@ -45,37 +45,6 @@ class CategoryServiceTest extends TestCase
         $this->assertTrue(is_array($result));
     }
 
-    public function testGetProductList(): void
-    {
-        $this->categoryRepository = Mockery::mock(CategoryRepository::class);
-        $this->categoryService = new CategoryService($this->categoryRepository);
-
-        $persistentCollection = Mockery::mock(Collection::class);
-        $persistentCollection->shouldReceive('getValues')->times(2)->andReturn(null, array(new Product()));
-
-        $category = Mockery::mock(Category::class);
-        $category
-            ->shouldReceive('getProductReferences')
-            ->times(2)
-            ->andReturn($persistentCollection)
-        ;
-
-        $this->categoryRepository
-            ->shouldReceive('getOneBySlug')
-            ->times(2)
-            ->withArgs(array('slugslug'))
-            ->andReturn($category)
-        ;
-
-        $result = $this->categoryService->getProductList('slug slug');
-        $this->assertEmpty($result);
-        $this->assertTrue(is_array($result));
-
-        $result = $this->categoryService->getProductList('slug slug');
-        $this->assertNotEmpty($result);
-        $this->assertInstanceOf(Product::class, $result[0]);
-    }
-
     public function tearDown(): void
     {
         Mockery::close();

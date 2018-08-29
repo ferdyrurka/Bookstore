@@ -6,8 +6,8 @@ use App\Entity\ForgotPassword;
 use App\Entity\User;
 use App\Exception\TokenNotFoundException;
 use App\Repository\ForgotPasswordRepository;
-use App\Request\ChangePasswordUserRequest;
-use App\Request\NewPasswordUserRequest;
+use App\Form\Model\ChangePasswordModel;
+use App\Form\Model\NewPasswordModel;
 use App\Service\ChangePasswordService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -26,14 +26,15 @@ class ChangePasswordServiceTest extends TestCase
     private $em;
     private $encoder;
     private $changePasswordService;
+    private $forgotPasswordRepository;
 
     public function setUp(): void
     {
         $this->em = Mockery::mock(EntityManagerInterface::class);
-
+        $this->forgotPasswordRepository = Mockery::mock(ForgotPasswordRepository::class);
         $this->encoder = Mockery::mock(UserPasswordEncoderInterface::class);
 
-        $this->changePasswordService = new ChangePasswordService($this->em, $this->encoder);
+        $this->changePasswordService = new ChangePasswordService($this->em, $this->encoder, $this->forgotPasswordRepository);
         parent::setUp();
     }
 
@@ -49,12 +50,10 @@ class ChangePasswordServiceTest extends TestCase
             ->andReturn('hash_password')
         ;
 
-        $this->changePasswordService = new ChangePasswordService($this->em, $this->encoder);
-
         $user = Mockery::mock(User::class);
         $user->shouldReceive('setPassword')->withArgs(array('hash_password'))->once();
 
-        $passwordUserRequest = Mockery::mock(ChangePasswordUserRequest::class);
+        $passwordUserRequest = Mockery::mock(ChangePasswordModel::class);
         $passwordUserRequest->shouldReceive('getPlainPassword')->once()->andReturn('plain_password');
 
         $this->changePasswordService->saveChangePassword($user, $passwordUserRequest);
@@ -73,7 +72,7 @@ class ChangePasswordServiceTest extends TestCase
             ->andReturn('hash_password')
         ;
 
-        $newPasswordUserRequest = Mockery::mock(NewPasswordUserRequest::class);
+        $newPasswordUserRequest = Mockery::mock(NewPasswordModel::class);
         $newPasswordUserRequest->shouldReceive('getPlainPassword')->once()->andReturn('plain_password');
 
         $user = Mockery::mock(User::class);
@@ -96,22 +95,20 @@ class ChangePasswordServiceTest extends TestCase
 
         $forgotPassword->shouldReceive('getTimeCreate')->once()->andReturn($time->format('Y-m-d H:i:s'));
 
-
-        $forgotPasswordRepository = Mockery::mock(ForgotPasswordRepository::class);
-        $forgotPasswordRepository
+        $this->forgotPasswordRepository
             ->shouldReceive('getOneByToken')
             ->withArgs(array('token'))
             ->once()
             ->andReturn($forgotPassword)
         ;
 
-        $result = $this->changePasswordService->getToken('token', $forgotPasswordRepository);
+        $result = $this->changePasswordService->getToken('token');
         $this->assertInstanceOf(ForgotPassword::class, $result);
 
         $time = new \DateTime("-1 hour");
         $forgotPassword->shouldReceive('getTimeCreate')->once()->andReturn($time->format('Y-m-d H:i:s'));
 
-        $forgotPasswordRepository
+        $this->forgotPasswordRepository
             ->shouldReceive('getOneByToken')
             ->withArgs(array('token'))
             ->once()
@@ -122,7 +119,7 @@ class ChangePasswordServiceTest extends TestCase
         $this->em->shouldReceive('flush')->once();
 
         $this->expectException(TokenNotFoundException::class);
-        $this->changePasswordService->getToken('token', $forgotPasswordRepository);
+        $this->changePasswordService->getToken('token');
     }
 
     public function tearDown(): void

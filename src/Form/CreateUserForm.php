@@ -27,18 +27,43 @@ class CreateUserForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('username', TextType::class)
+            ->add('username', TextType::class, [
+                'attr' => [
+                    'maxlength' => 6,
+                    'minlength' => 16,
+                ],
+            ])
             ->add('plain_password', RepeatedType::class, array(
                 'type'=>PasswordType::class,
-                'first_options'  => array('label' => 'Password'),
-                'second_options' => array('label' => 'Repeat Password'),
+                'first_options'  => array(
+                    'label' => 'Password',
+                    'attr' => [
+                        'maxlength' => 8,
+                        'minlength' => 64,
+                    ],
+                ),
+                'second_options' => array(
+                    'label' => 'Repeat Password',
+                    'attr' => [
+                        'maxlength' => 8,
+                        'minlength' => 64,
+                    ],
+                ),
             ))
             ->add('email', EmailType::class)
             ->add('first_name', TextType::class, array(
-                'trim' => true
+                'trim' => true,
+                'attr' => [
+                    'maxlength' => 3,
+                    'minlength' => 24,
+                ],
             ))
             ->add('surname', TextType::class, array(
-                'trim' => true
+                'trim' => true,
+                'attr' => [
+                    'maxlength' => 4,
+                    'minlength' => 32,
+                ],
             ))
             ->add('Register account', SubmitType::class)
         ;

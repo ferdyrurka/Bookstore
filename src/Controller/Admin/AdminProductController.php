@@ -3,10 +3,8 @@
 
 namespace App\Controller\Admin;
 
-use App\Form\CreateProductForm;
-use App\Form\UpdateProductForm;
-use App\Request\CreateProductRequest;
-use App\Request\UpdateProductRequest;
+use App\Entity\Product;
+use App\Form\ProductForm;
 use App\Security\SessionAttackInterface;
 use App\Service\Controller\Admin\AdminProductService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -48,7 +46,7 @@ class AdminProductController extends Controller implements SessionAttackInterfac
      */
     public function createProductAction(Request $request): array
     {
-        $form = $this->createForm(CreateProductForm::class, new CreateProductRequest());
+        $form = $this->createForm(ProductForm::class, new Product());
         $form->handleRequest($request);
 
         return array(
@@ -65,10 +63,10 @@ class AdminProductController extends Controller implements SessionAttackInterfac
      */
     public function saveProductAction(Request $request, AdminProductService $service): Response
     {
-        $form = $this->createForm(CreateProductForm::class, new CreateProductRequest());
+        $form = $this->createForm(ProductForm::class, new Product());
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $service->createProduct($form->getData(), $this->get('upload.file'));
 
             return $this->redirectToRoute('index.adminProduct');
@@ -93,7 +91,7 @@ class AdminProductController extends Controller implements SessionAttackInterfac
      */
     public function updateProductAction(Request $request, AdminProductService $service, int $productId): array
     {
-        $form = $this->createForm(UpdateProductForm::class, new UpdateProductRequest($service->getProduct($productId)));
+        $form = $this->createForm(ProductForm::class, $service->getProduct($productId));
         $form->handleRequest($request);
 
         return array(
@@ -111,14 +109,11 @@ class AdminProductController extends Controller implements SessionAttackInterfac
      */
     public function saveUpdateProductAction(Request $request, AdminProductService $service, int $productId): Response
     {
-        $form = $this->createForm(
-            UpdateProductForm::class,
-            new UpdateProductRequest($product = $service->getProduct($productId))
-        );
+        $form = $this->createForm(ProductForm::class, $service->getProduct($productId));
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
-            $service->updateProduct($form->getData(), $product, $this->get('upload.file'));
+        if ($form->isSubmitted() && $form->isValid()) {
+            $service->updateProduct($form->getData(), $this->get('upload.file'));
 
             return $this->redirectToRoute('index.adminProduct');
         }

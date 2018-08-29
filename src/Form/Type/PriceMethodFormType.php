@@ -4,7 +4,6 @@
 namespace App\Form\Type;
 
 use App\Entity\PriceMethod;
-use App\Request\PriceMethodRequest;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -39,7 +38,7 @@ class PriceMethodFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(array(
-            'data_class' => PriceMethodRequest::class
+            'data_class' => PriceMethod::class
         ));
     }
 }

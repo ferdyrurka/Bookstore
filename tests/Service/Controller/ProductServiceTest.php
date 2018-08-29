@@ -2,10 +2,14 @@
 
 namespace App\Tests\Service\Controller;
 
+use App\Entity\Category;
 use App\Entity\Product;
+use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
+use App\Service\Controller\CategoryService;
 use App\Service\Controller\ProductService;
 use App\Service\Controller\ViewProductService;
+use Doctrine\Common\Collections\Collection;
 use PHPUnit\Framework\TestCase;
 use \Mockery;
 
@@ -18,22 +22,37 @@ class ProductServiceTest extends TestCase
 
     use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
+    private $productService;
+
+    private $productRepository;
+
+    private $categoryRepository;
+
+    private $viewProductService;
+
+    public function setUp()
+    {
+
+        $this->productRepository = Mockery::mock(ProductRepository::class);
+        $this->categoryRepository = Mockery::mock(CategoryRepository::class);
+        $this->viewProductService = Mockery::mock(ViewProductService::class);
+
+        $this->productService = new ProductService($this->productRepository, $this->categoryRepository, $this->viewProductService);
+        parent::setUp();
+    }
+
     public function testGetProducts(): void
     {
-        $productRepository = Mockery::mock(ProductRepository::class);
+        $this->productRepository->shouldReceive('findAll')->once()->andReturnNull();
 
-        $productRepository->shouldReceive('findAll')->once()->andReturnNull();
-
-        $productService = new ProductService($productRepository);
-
-        $result = $productService->getProducts();
+        $result = $this->productService->getProducts();
         $this->assertNotNull($result);
         $this->assertEmpty($result);
         $this->assertTrue(is_array($result));
 
-        $productRepository->shouldReceive('findAll')->once()->andReturn(array(new Product()));
+        $this->productRepository->shouldReceive('findAll')->once()->andReturn(array(new Product()));
 
-        $result = $productService->getProducts();
+        $result = $this->productService->getProducts();
 
         $this->assertNotEmpty($result);
     }
@@ -43,27 +62,51 @@ class ProductServiceTest extends TestCase
      */
     public function testGetProductBySlug(): void
     {
-        $productRepository = Mockery::mock(ProductRepository::class);
-
         $product = Mockery::mock(Product::class);
         $product->shouldReceive('getId')->once()->andReturn(1);
         $product->shouldReceive('getPrice')->once()->andReturn(1000);
         $product->shouldReceive('setPriceFloat')->once()->withArgs(array(12.3));
 
-        $productRepository
+        $this->productRepository
             ->shouldReceive('getOneBySlug')
             ->withArgs(array('test'))
             ->once()
             ->andReturn($product);
 
-        $viewProductRepository = Mockery::mock(ViewProductService::class);
-        $viewProductRepository->shouldReceive('addView')->withArgs(array(1, 1))->once();
+        $this->viewProductService->shouldReceive('addView')->withArgs(array(1, 1))->once();
 
-        $productService = new ProductService($productRepository);
-        $result = $productService->getProductBySlug('test', 'pl', $viewProductRepository, 1);
+        $result = $this->productService->getProductBySlug('test',  1);
 
         $this->assertNotNull($result);
         $this->assertInstanceOf(Product::class, $result);
+    }
+
+    public function testGetProductList(): void
+    {
+        $persistentCollection = Mockery::mock(Collection::class);
+        $persistentCollection->shouldReceive('getValues')->times(2)->andReturn(null, array(new Product()));
+
+        $category = Mockery::mock(Category::class);
+        $category
+            ->shouldReceive('getProductReferences')
+            ->times(2)
+            ->andReturn($persistentCollection)
+        ;
+
+        $this->categoryRepository
+            ->shouldReceive('getOneBySlug')
+            ->times(2)
+            ->withArgs(array('slugslug'))
+            ->andReturn($category)
+        ;
+
+        $result = $this->productService->getProductInCategory('slug slug');
+        $this->assertEmpty($result);
+        $this->assertTrue(is_array($result));
+
+        $result = $this->productService->getProductInCategory('slug slug');
+        $this->assertNotEmpty($result);
+        $this->assertInstanceOf(Product::class, $result[0]);
     }
 
     /**
@@ -71,31 +114,28 @@ class ProductServiceTest extends TestCase
      */
     public function testGetProduct(): void
     {
-        $productRepository = Mockery::mock(ProductRepository::class);
-
         $product = Mockery::mock(Product::class);
         $product->shouldReceive('getPrice')->once()->andReturn(1000);
         $product->shouldReceive('setPriceFloat')->once()->withArgs(array(12.3));
 
-        $productRepository
+        $this->productRepository
             ->shouldReceive('findOneById')
             ->withArgs(array(1))
             ->once()
             ->andReturn($product);
 
-        $productService = new ProductService($productRepository);
-        $result = $productService->getProduct(1, 'pl');
+        $result = $this->productService->getProduct(1);
 
         $this->assertNotNull($result);
         $this->assertInstanceOf(Product::class, $result);
 
-        $productRepository
+        $this->productRepository
             ->shouldReceive('findOneById')
             ->withArgs(array(1))
             ->once()
             ->andReturnNull();
 
-        $result = $productService->getProduct(1, 'pl');
+        $result = $this->productService->getProduct(1, 'pl');
 
         $this->assertNotNull($result);
         $this->assertInstanceOf(Product::class, $result);

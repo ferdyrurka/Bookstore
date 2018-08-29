@@ -4,7 +4,7 @@
 namespace App\Controller;
 
 use App\Form\ForgotPasswordForm;
-use App\Request\ForgotPasswordRequest;
+use App\Form\Model\ForgotPasswordModel;
 use App\Security\SessionAttackInterface;
 use App\Service\Controller\ForgotPasswordService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,7 +30,7 @@ class ForgotPasswordController extends Controller implements SessionAttackInterf
      */
     public function indexAction(Request $request): array
     {
-        $form = $this->createForm(ForgotPasswordForm::class, new ForgotPasswordRequest());
+        $form = $this->createForm(ForgotPasswordForm::class, new ForgotPasswordModel());
 
         $form->handleRequest($request);
 
@@ -50,11 +50,11 @@ class ForgotPasswordController extends Controller implements SessionAttackInterf
      */
     public function createForgotPasswordAction(Request $request, ForgotPasswordService $service): Response
     {
-        $form = $this->createForm(ForgotPasswordForm::class, new ForgotPasswordRequest());
+        $form = $this->createForm(ForgotPasswordForm::class, new ForgotPasswordModel());
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $service->createForgotPassword($form->getData());
             return $this->redirectToRoute('home.home');
         }

@@ -3,7 +3,7 @@
 namespace App\Tests\Service\Controller;
 
 use App\Entity\User;
-use App\Request\UpdateUserRequest;
+use App\Form\Model\UpdateUserModel;
 use App\Service\Controller\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -29,7 +29,7 @@ class UserServiceTest extends TestCase
         $user->shouldReceive('setSurname')->withArgs(array('Surname'))->once();
         $user->shouldReceive('setEmail')->withArgs(array('kontakt@lukaszstaniszewski.pl'))->once();
 
-        $updateRequest = Mockery::mock(UpdateUserRequest::class);
+        $updateRequest = Mockery::mock(UpdateUserModel::class);
         $updateRequest->shouldReceive('getFirstName')->once()->andReturn('First name');
         $updateRequest->shouldReceive('getSurname')->once()->andReturn('Surname');
         $updateRequest->shouldReceive('getEmail')->once()->andReturn('kontakt@lukaszstaniszewski.pl');

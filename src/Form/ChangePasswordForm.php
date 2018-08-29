@@ -9,7 +9,6 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Length;
 
 /**
  * Class ChangePasswordAdminForm
@@ -26,8 +25,20 @@ class ChangePasswordForm extends AbstractType
         $builder
             ->add('plain_password', RepeatedType::class, array(
                 'type' => PasswordType::class,
-                'first_options'  => array('label' => 'Password'),
-                'second_options' => array('label' => 'Repeat Password'),
+                'first_options'  => array(
+                    'label' => 'Password',
+                    'attr' => [
+                        'minlength' => 8,
+                        'maxlength' => 64,
+                    ],
+                ),
+                'second_options' => array(
+                    'label' => 'Repeat Password',
+                    'attr' => [
+                        'minlength' => 8,
+                        'maxlength' => 64,
+                    ],
+                ),
             ))
             ->add('old_password', PasswordType::class)
             ->add('save', SubmitType::class)

@@ -4,11 +4,14 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(name="user")
+ * @UniqueEntity("email")
+ * @UniqueEntity("username")
  */
 class User implements UserInterface, \Serializable
 {
@@ -22,21 +25,50 @@ class User implements UserInterface, \Serializable
 
     /**
      * @ORM\Column(type="string", length=24)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Length(
+     *      min=3,
+     *      max=24,
+     *      minMessage="min.length {{limit}}",
+     *      maxMessage="max.length {{limit}}",
+     * )
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=32)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Length(
+     *      min=4,
+     *      max=32,
+     *      minMessage="min.length {{limit}}",
+     *      maxMessage="max.length {{limit}}",
+     * )
      */
     private $surname;
 
     /**
      * @ORM\Column(name="username", type="string", length=16, unique=true)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Length(
+     *      min=6,
+     *      max=16,
+     *      minMessage="min.length {{limit}}",
+     *      maxMessage="max.length {{limit}}",
+     * )
+     * @Assert\Regex(
+     *     pattern="/^([A-Z]){1,1}([A-Z|a-z|0-9|_]){5,15}$/",
+     *     message="incorrect data provided"
+     * )
      */
     private $username;
 
     /**
      * @ORM\Column(name="email",type="string", length=64, unique=true)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Email(
+     *     message = "incorrect data provided",
+     * )
      */
     private $email;
 
@@ -44,6 +76,19 @@ class User implements UserInterface, \Serializable
      * @ORM\Column(type="string", length=255)
      */
     private $password;
+
+    /**
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Length(
+     *      min=8,
+     *      max=64,
+     *      minMessage="min.length {{limit}}",
+     *      maxMessage="max.length {{limit}}",
+     * )
+     */
+    private $plainPassword;
+
+    private $adminPassword;
 
     /**
      * @ORM\Column(type="integer")
@@ -66,7 +111,7 @@ class User implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getFirstName(): string
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
@@ -82,7 +127,7 @@ class User implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getSurname(): string
+    public function getSurname(): ?string
     {
         return $this->surname;
     }
@@ -98,7 +143,7 @@ class User implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getUsername() :string
+    public function getUsername() :?string
     {
         return $this->username;
     }
@@ -112,15 +157,15 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getEmail() :string
+    public function getEmail() :?string
     {
         return $this->email;
     }
 
     /**
-     * @param $email
+     * @param null|string $email
      */
     public function setEmail(string $email)
     {
@@ -149,6 +194,38 @@ class User implements UserInterface, \Serializable
     public function setPassword(string $password)
     {
         $this->password = $password;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param string $plainPassword
+     */
+    public function setPlainPassword(string $plainPassword): void
+    {
+        $this->plainPassword = $plainPassword;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAdminPassword(): ?string
+    {
+        return $this->adminPassword;
+    }
+
+    /**
+     * @param null|string $adminPassword
+     */
+    public function setAdminPassword(?string $adminPassword): void
+    {
+        $this->adminPassword = $adminPassword;
     }
 
     /**

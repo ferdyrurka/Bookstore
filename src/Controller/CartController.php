@@ -3,7 +3,6 @@
 
 namespace App\Controller;
 
-use App\Repository\ProductRepository;
 use App\Security\SessionAttackInterface;
 use App\Service\Controller\CartService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,7 +22,6 @@ class CartController extends Controller implements SessionAttackInterface
      * @param int $howMuch
      * @param string|null $cartId
      * @param CartService $service
-     * @param ProductRepository $productRepository
      * @throws \App\Exception\MinusHowMuchCartException
      * @throws \App\Exception\NotYourCartException
      * @return JsonResponse
@@ -34,10 +32,9 @@ class CartController extends Controller implements SessionAttackInterface
         int $productId,
         int $howMuch,
         CartService $service,
-        ProductRepository $productRepository,
         ?string $cartId = null
     ): JsonResponse {
-        return new JsonResponse($service->addProduct($productId, $howMuch, $productRepository, $cartId));
+        return new JsonResponse($service->addProduct($productId, $howMuch, $cartId));
     }
 
     /**
@@ -45,7 +42,6 @@ class CartController extends Controller implements SessionAttackInterface
      * @param int $howMuch
      * @param string $cartId
      * @param CartService $service
-     * @param ProductRepository $productRepository
      * @throws \App\Exception\MinusHowMuchCartException
      * @throws \App\Exception\NotFoundProductInCartException
      * @throws \App\Exception\NotYourCartException
@@ -57,10 +53,9 @@ class CartController extends Controller implements SessionAttackInterface
         int $productId,
         int $howMuch,
         string $cartId,
-        CartService $service,
-        ProductRepository $productRepository
+        CartService $service
     ): JsonResponse {
-        return new JsonResponse($service->updateProduct($productId, $howMuch, $cartId, $productRepository));
+        return new JsonResponse($service->updateProduct($productId, $howMuch, $cartId));
     }
 
     /**

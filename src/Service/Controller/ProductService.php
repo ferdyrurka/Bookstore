@@ -6,6 +6,7 @@ namespace App\Service\Controller;
 use App\Entity\Product;
 use App\Model\Tax;
 use App\NullObject\Service\Controller\NullProductService;
+use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 
 /**
@@ -20,12 +21,29 @@ class ProductService
     private $productRepository;
 
     /**
+     * @var CategoryRepository
+     */
+    private $categoryRepository;
+
+    /**
+     * @var ViewProductService
+     */
+    private $viewProductService;
+
+    /**
      * ProductService constructor.
      * @param ProductRepository $productRepository
+     * @param CategoryRepository $categoryRepository
+     * @param ViewProductService $viewProductService
      */
-    public function __construct(ProductRepository $productRepository)
-    {
+    public function __construct(
+        ProductRepository $productRepository,
+        CategoryRepository $categoryRepository,
+        ViewProductService $viewProductService
+    ) {
         $this->productRepository = $productRepository;
+        $this->categoryRepository = $categoryRepository;
+        $this->viewProductService = $viewProductService;
     }
 
     /**
@@ -44,50 +62,60 @@ class ProductService
 
     /**
      * @param string $slug
-     * @param string $locale
-     * @param ViewProductService $viewProductService
      * @param int|null $userId
      * @return Product
      * @throws \Exception
      */
-    public function getProductBySlug(
-        string $slug,
-        string $locale,
-        ViewProductService $viewProductService,
-        ?int $userId = null
-    ): Product {
+    public function getProductBySlug(string $slug, ?int $userId = null): Product
+    {
         $slug = htmlspecialchars($slug);
         $slug = str_replace(' ', '', $slug);
 
         $product = $this->productRepository->getOneBySlug($slug);
-        $product->setPriceFloat($this->calculateTax($product->getPrice() / 100, $locale));
+        $product->setPriceFloat($this->calculateTax($product->getPrice() / 100));
 
-        $viewProductService->addView($product->getId(), $userId);
+        $this->viewProductService->addView($product->getId(), $userId);
 
         return $product;
     }
 
     /**
+     * @param string $slug
+     * @return array
+     */
+    public function getProductInCategory(string $slug): array
+    {
+        $slug = htmlspecialchars($slug);
+        $slug = str_replace(' ', '', $slug);
+
+        $category = $this->categoryRepository->getOneBySlug($slug)->getProductReferences()->getValues();
+
+        if (is_null($category)) {
+            return array();
+        }
+
+        return $category;
+    }
+
+    /**
      * @param float $price
-     * @param string $locale
      * @return float
      * @throws \Exception
      */
-    private function calculateTax(float $price, string $locale): float
+    private function calculateTax(float $price): float
     {
         $tax = new Tax();
-        $tax->setPricesWithTax($locale, $price);
+        $tax->setPricesWithTax('pl', $price);
 
         return $tax->getPriceWithTax();
     }
 
     /**
      * @param int $productId
-     * @param string $locale
      * @return Product
      * @throws \Exception
      */
-    public function getProduct(int $productId, string $locale): Product
+    public function getProduct(int $productId): Product
     {
         $product = $this->productRepository->findOneById($productId);
 
@@ -96,7 +124,7 @@ class ProductService
             return $null->getProduct();
         }
 
-        $product->setPriceFloat($this->calculateTax($product->getPrice() / 100, $locale));
+        $product->setPriceFloat($this->calculateTax($product->getPrice() / 100));
 
         return $product;
     }

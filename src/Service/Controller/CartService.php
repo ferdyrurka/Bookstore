@@ -37,16 +37,35 @@ class CartService
     private $request;
 
     /**
+     * @var ProductRepository
+     */
+    private $productRepository;
+
+    /**
+     * @var ProductService
+     */
+    private $productService;
+
+    /**
      * CartService constructor.
      * @param EntityManagerInterface $em
      * @param CartRepository $cartRepository
      * @param RequestStack $requestStack
+     * @param ProductRepository $productRepository
+     * @param ProductService $productService
      */
-    public function __construct(EntityManagerInterface $em, CartRepository $cartRepository, RequestStack $requestStack)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        CartRepository $cartRepository,
+        RequestStack $requestStack,
+        ProductRepository $productRepository,
+        ProductService $productService
+    ) {
         $this->cartRepository = $cartRepository;
         $this->em = $em;
         $this->request = $requestStack->getCurrentRequest();
+        $this->productRepository = $productRepository;
+        $this->productService = $productService;
     }
 
     /**
@@ -70,8 +89,7 @@ class CartService
     /**
      * @param int $productId
      * @param int $howMuch
-     * @param ProductRepository $productRepository
-     * @param string|null $cartId
+     * @param null|string $cartId
      * @return array
      * @throws MinusHowMuchCartException
      * @throws NotYourCartException
@@ -80,7 +98,6 @@ class CartService
     public function addProduct(
         int $productId,
         int $howMuch,
-        ProductRepository $productRepository,
         ?string $cartId = null
     ): array {
 
@@ -101,7 +118,7 @@ class CartService
             $products = $cart->getProducts();
         }
 
-        $product = $productRepository->getOneById($productId);
+        $product = $this->productRepository->getOneById($productId);
 
         if (isset($products[$productId])) {
             $howMuch = $products[$productId]['how_much'] + $howMuch;
@@ -136,7 +153,6 @@ class CartService
      * @param int $productId
      * @param int $howMuch
      * @param string $cartId
-     * @param ProductRepository $productRepository
      * @return array
      * @throws MinusHowMuchCartException
      * @throws NotFoundProductInCartException
@@ -145,8 +161,7 @@ class CartService
     public function updateProduct(
         int $productId,
         int $howMuch,
-        string $cartId,
-        ProductRepository $productRepository
+        string $cartId
     ): array {
 
         if ($howMuch < 1) {
@@ -161,7 +176,7 @@ class CartService
             throw new NotFoundProductInCartException('Does product not found in cart');
         }
 
-        $product = $productRepository->findOneById($productId);
+        $product = $this->productRepository->findOneById($productId);
 
         if (is_null($product)) {
             unset($products[$productId]);
@@ -241,25 +256,22 @@ class CartService
 
     /**
      * @param string $cartId
-     * @param string $locale
-     * @param ProductService $productService
      * @param bool $magazine
      * @param bool $objProduct
      * @return array
      * @throws CartEmptyException
      * @throws NotYourCartException
+     * @throws \Exception
      */
     public function getCart(
         string $cartId,
-        string $locale,
-        ProductService $productService,
         bool $magazine = false,
         bool $objProduct = false
     ): array {
         $products = array();
 
         foreach ($this->init($cartId)->getProducts() as $key => $row) {
-            $product = $productService->getProduct($key, $locale);
+            $product = $this->productService->getProduct($key, 'pl');
 
             if ($row['how_much'] > $product->getMagazine()) {
                 $products[$key]['how_much'] = $product->getMagazine();

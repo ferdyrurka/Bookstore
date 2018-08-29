@@ -7,7 +7,7 @@ use App\Entity\User;
 use App\Model\SendMailForgotPassword;
 use App\Repository\ForgotPasswordRepository;
 use App\Repository\UserRepository;
-use App\Request\ForgotPasswordRequest;
+use App\Form\Model\ForgotPasswordModel;
 use App\Service\Controller\ForgotPasswordService;
 use App\Service\SendMail;
 use Doctrine\ORM\EntityManagerInterface;
@@ -46,7 +46,7 @@ class ForgotPasswordServiceTest extends TestCase
             ->andReturn($user)
         ;
 
-        $forgotPasswordRequest = Mockery::mock(ForgotPasswordRequest::class);
+        $forgotPasswordRequest = Mockery::mock(ForgotPasswordModel::class);
         $forgotPasswordRequest->shouldReceive('getEmail')->times(5)->andReturn('kontakt@lukaszstaniszewski.pl');
 
         $forgotPassword = Mockery::mock(ForgotPassword::class);

@@ -4,6 +4,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -25,6 +26,11 @@ class PriceMethod
     private $name;
 
     /**
+     * @Assert\NotBlank(message="not.blank.fields")
+     */
+    private $priceMethodId;
+
+    /**
      * @return int
      */
     public function getId(): int
@@ -38,6 +44,22 @@ class PriceMethod
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @return PriceMethod|null
+     */
+    public function getPriceMethodId(): ?PriceMethod
+    {
+        return $this->priceMethodId;
+    }
+
+    /**
+     * @param PriceMethod $priceMethodId
+     */
+    public function setPriceMethodId(PriceMethod $priceMethodId): void
+    {
+        $this->priceMethodId = $priceMethodId;
     }
 
     /**

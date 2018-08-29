@@ -5,12 +5,10 @@ namespace App\Controller;
 
 use App\Form\ChangePasswordForm;
 use App\Form\NewPasswordUserForm;
-use App\Repository\ForgotPasswordRepository;
-use App\Request\ChangePasswordUserRequest;
-use App\Request\NewPasswordUserRequest;
+use App\Form\Model\ChangePasswordModel;
+use App\Form\Model\NewPasswordModel;
 use App\Security\SessionAttackInterface;
 use App\Service\ChangePasswordService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -28,12 +26,13 @@ class ChangePasswordController extends Controller implements SessionAttackInterf
      * @param Request $request
      * @return array
      * @Route("/change-password", methods={"GET"}, name="changePassword.changePassword")
+     * @Route("/admin1999/change-password", methods={"GET"}, name="changePassword.adminChangePassword")
      * @Template("change-password/change-password.html.twig")
-     * @IsGranted("ROLE_USER")
+     * Roles granted in access_controll because two url action.
      */
     public function changePasswordAction(Request $request): array
     {
-        $form = $this->createForm(ChangePasswordForm::class, new ChangePasswordUserRequest());
+        $form = $this->createForm(ChangePasswordForm::class, new ChangePasswordModel());
 
         $form->handleRequest($request);
 
@@ -47,18 +46,22 @@ class ChangePasswordController extends Controller implements SessionAttackInterf
      * @param ChangePasswordService $service
      * @return Response
      * @Route("/change-password", methods={"POST"})
-     * @IsGranted("ROLE_USER")
+     * @Route("/admin1999/change-password", methods={"POST"})
+     * Roles granted in access_controll because two url action.
      */
     public function saveChangePasswordAction(Request $request, ChangePasswordService $service): Response
     {
-        $form = $this->createForm(ChangePasswordForm::class, new ChangePasswordUserRequest());
+        $form = $this->createForm(ChangePasswordForm::class, new ChangePasswordModel());
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $service->saveChangePassword($this->getUser(), $form->getData());
 
-            return $this->redirectToRoute('changePassword.changePassword');
+            if (in_array('ROLE_USER', $this->getUser()->getRoles())) {
+                return $this->redirectToRoute('changePassword.changePassword');
+            }
+            return $this->redirectToRoute('changePassword.adminChangePassword');
         }
 
         return $this->forward(
@@ -72,7 +75,6 @@ class ChangePasswordController extends Controller implements SessionAttackInterf
     /**
      * @param Request $request
      * @param ChangePasswordService $service
-     * @param ForgotPasswordRepository $forgotPasswordRepository
      * @param string $token
      * @return array
      * @Route("/change-forgot-password/{token}", methods={"GET"}, name="forgotPassword.changePassword")
@@ -83,12 +85,11 @@ class ChangePasswordController extends Controller implements SessionAttackInterf
     public function forgotPasswordAction(
         Request $request,
         ChangePasswordService $service,
-        ForgotPasswordRepository $forgotPasswordRepository,
         string $token
     ): array {
-        $service->getToken($token, $forgotPasswordRepository);
+        $service->getToken($token);
 
-        $form = $this->createForm(NewPasswordUserForm::class, new NewPasswordUserRequest());
+        $form = $this->createForm(NewPasswordUserForm::class, new NewPasswordModel());
         $form->handleRequest($request);
 
         return array(
@@ -99,7 +100,6 @@ class ChangePasswordController extends Controller implements SessionAttackInterf
     /**
      * @param Request $request
      * @param ChangePasswordService $service
-     * @param ForgotPasswordRepository $forgotPasswordRepository
      * @param string $token
      * @return Response
      * @Route("/change-forgot-password/{token}", methods={"POST"})
@@ -109,14 +109,13 @@ class ChangePasswordController extends Controller implements SessionAttackInterf
     public function saveNewPasswordAction(
         Request $request,
         ChangePasswordService $service,
-        ForgotPasswordRepository $forgotPasswordRepository,
         string $token
     ): Response {
-        $form = $this->createForm(NewPasswordUserForm::class, new NewPasswordUserRequest());
+        $form = $this->createForm(NewPasswordUserForm::class, new NewPasswordModel());
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
-            $service->saveNewPassword($service->getToken($token, $forgotPasswordRepository), $form->getData());
+        if ($form->isSubmitted() && $form->isValid()) {
+            $service->saveNewPassword($service->getToken($token), $form->getData());
             return $this->redirectToRoute('login');
         }
 
@@ -126,7 +125,6 @@ class ChangePasswordController extends Controller implements SessionAttackInterf
                 'request' => $request,
                 'service' => $service,
                 'token' => $token,
-                'forgotPasswordRepository' => $forgotPasswordRepository,
             )
         );
     }

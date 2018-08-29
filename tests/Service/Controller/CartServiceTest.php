@@ -33,20 +33,28 @@ class CartServiceTest extends TestCase
     private $cartService;
     private $request;
     private $session;
+    private $productRepository;
+    private $productService;
 
     public function setUp(): void
     {
         $this->em = Mockery::mock(EntityManagerInterface::class);
         $this->cartRepository = Mockery::mock(CartRepository::class);
-
+        $this->productService = Mockery::mock(ProductService::class);
+        $this->productRepository = Mockery::mock(ProductRepository::class);
         $this->session = Mockery::mock(SessionInterface::class);
-
         $this->request = Mockery::mock(Request::class);
 
         $requestStack = Mockery::mock(RequestStack::class);
         $requestStack->shouldReceive('getCurrentRequest')->once()->andReturn($this->request);
 
-        $this->cartService = new CartService($this->em, $this->cartRepository, $requestStack);
+        $this->cartService = new CartService(
+            $this->em,
+            $this->cartRepository,
+            $requestStack,
+            $this->productRepository,
+            $this->productService
+        );
 
         parent::setUp();
     }
@@ -65,8 +73,7 @@ class CartServiceTest extends TestCase
         $product = Mockery::mock(Product::class);
         $product->shouldReceive('getMagazine')->times(4)->andReturn(5);
 
-        $productRepository = Mockery::mock(ProductRepository::class);
-        $productRepository->shouldReceive('getOneById')->times(2)->withArgs(array(1))->andReturn($product);
+        $this->productRepository->shouldReceive('getOneById')->times(2)->withArgs(array(1))->andReturn($product);
 
         $this->em->shouldReceive('flush')->times(2);
         $this->em->shouldReceive('persist')->times(2)->withArgs(array(Cart::class));
@@ -80,11 +87,11 @@ class CartServiceTest extends TestCase
         $this->session->shouldReceive('set')->once();
         $this->request->shouldReceive('getSession')->times(4)->andReturn($this->session);
 
-        $result = $this->cartService->addProduct(1, 2, $productRepository);
+        $result = $this->cartService->addProduct(1, 2);
         $this->assertFalse($result['error']);
         $this->assertEquals(3, $result['how_much']);
 
-        $result = $this->cartService->addProduct(1, 2, $productRepository, 123456789);
+        $result = $this->cartService->addProduct(1, 2, 123456789);
         $this->assertFalse($result['error']);
         $this->assertEquals(2, $result['how_much']);
     }
@@ -139,20 +146,19 @@ class CartServiceTest extends TestCase
         $product->setPriceFloat(10.00);
         $product->setName('Name');
 
-        $productService = Mockery::mock(ProductService::class);
-        $productService->shouldReceive('getProduct')->withArgs(array(1,'pl'))->once()->andReturn($product);
+        $this->productService->shouldReceive('getProduct')->withArgs(array(1,'pl'))->once()->andReturn($product);
 
         $this->session->shouldReceive('get')->withArgs(array('cart_id'))->times(2)->andReturn(123456789);
         $this->request->shouldReceive('getSession')->times(2)->andReturn($this->session);
 
-        $result = $this->cartService->getCart(123456789, 'pl', $productService, true);
+        $result = $this->cartService->getCart(123456789, true);
         $this->assertEquals(1, $result[1]['how_much']);
         $this->assertEquals(10, $result[1]['cost']);
         $this->assertEquals('Name', $result[1]['name']);
         $this->assertEquals(5, $result[1]['magazine']);
 
         $this->expectException(CartEmptyException::class);
-        $this->cartService->getCart(123456789, 'pl', $productService);
+        $this->cartService->getCart(123456789);
     }
 
     public function testUpdateProduct(): void
@@ -169,8 +175,7 @@ class CartServiceTest extends TestCase
         $product = Mockery::mock(Product::class);
         $product->shouldReceive('getMagazine')->times(3)->andReturn(5);
 
-        $productRepository = Mockery::mock(ProductRepository::class);
-        $productRepository
+        $this->productRepository
             ->shouldReceive('findOneById')
             ->withArgs(array(1))
             ->times(3)
@@ -180,7 +185,7 @@ class CartServiceTest extends TestCase
         $this->session->shouldReceive('get')->withArgs(array('cart_id'))->times(3)->andReturn(123456789);
         $this->request->shouldReceive('getSession')->times(3)->andReturn($this->session);
 
-        $result = $this->cartService->updateProduct(1, 2, 123456789, $productRepository);
+        $result = $this->cartService->updateProduct(1, 2, 123456789);
         $this->assertFalse($result['error']);
         $this->assertEquals(3, $result['how_much']);
 
@@ -188,7 +193,7 @@ class CartServiceTest extends TestCase
          * To many pieces
          */
 
-        $result = $this->cartService->updateProduct(1, 6, 123456789, $productRepository);
+        $result = $this->cartService->updateProduct(1, 6, 123456789);
         $this->assertEquals('Too many pieces of the product.', $result['error']);
 
         /**
@@ -197,16 +202,14 @@ class CartServiceTest extends TestCase
 
         $cart->shouldReceive('setProducts')->once()->withArgs(array(array()));
 
-        $result = $this->cartService->updateProduct(1, 2, 123456789, $productRepository);
+        $result = $this->cartService->updateProduct(1, 2, 123456789);
         $this->assertEquals('The product ceased to exist.', $result['error']);
     }
 
     public function testUpdateProductExceptionMinus(): void
     {
-        $productRepository = Mockery::mock(ProductRepository::class);
-
         $this->expectException(MinusHowMuchCartException::class);
-        $this->cartService->updateProduct(1, -1, 123456789, $productRepository);
+        $this->cartService->updateProduct(1, -1, 123456789);
     }
 
     public function testUpdateProductExceptionNotFound(): void
@@ -216,24 +219,20 @@ class CartServiceTest extends TestCase
 
         $this->cartRepository->shouldReceive('getOneByCartId')->withArgs(array(123456789))->once()->andReturn($cart);
 
-        $productRepository = Mockery::mock(ProductRepository::class);
-
         $this->session->shouldReceive('get')->withArgs(array('cart_id'))->once()->andReturn(123456789);
         $this->request->shouldReceive('getSession')->once()->andReturn($this->session);
 
         $this->expectException(NotFoundProductInCartException::class);
-        $this->cartService->updateProduct(2, 1, 123456789, $productRepository);
+        $this->cartService->updateProduct(2, 1, 123456789);
     }
 
     public function testNotYourCart(): void
     {
-        $productRepository = Mockery::mock(ProductRepository::class);
-
         $this->session->shouldReceive('get')->withArgs(array('cart_id'))->once()->andReturn(123456789);
         $this->request->shouldReceive('getSession')->once()->andReturn($this->session);
 
         $this->expectException(NotYourCartException::class);
-        $this->cartService->updateProduct(2, 1, 1234567890, $productRepository);
+        $this->cartService->updateProduct(2, 1, 1234567890);
     }
 
     public function tearDown(): void

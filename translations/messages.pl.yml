@@ -89,3 +89,5 @@ Description: Opis
 Product image: Obrazek produktu
 Admin password: Hasło administratora
 incorrect data provided: Podano nieprawidłowo dane
+Price float: Cena
+password.is.incorrect: Podane hasło jest nieprawidłowe

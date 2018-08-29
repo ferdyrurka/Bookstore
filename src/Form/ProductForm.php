@@ -3,9 +3,10 @@
 
 namespace App\Form;
 
+use App\Entity\Category;
 use App\Form\Type\ProductImageFormType;
-use App\Form\Type\SelectCategoriesFormType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -17,12 +18,11 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class UpdateProductForm
+ * Class CreateProductForm
  * @package App\Form
  */
-class UpdateProductForm extends AbstractType
+class ProductForm extends AbstractType
 {
-
     /**
      * @var array
      */
@@ -35,8 +35,13 @@ class UpdateProductForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class)
-            ->add('price', MoneyType::class, array(
+            ->add('name', TextType::class, [
+                'attr' => [
+                    'maxlength' => 6,
+                    'minlength' => 128,
+                ],
+            ])
+            ->add('price_float', MoneyType::class, array(
                 'currency' => 'PLN',
                 'trim' => true
             ))
@@ -46,10 +51,13 @@ class UpdateProductForm extends AbstractType
                 'entry_options' => array('label'=>false),
                 'label' => false
             ))
-            ->add('categories', CollectionType::class, array(
-                'entry_type' => SelectCategoriesFormType::class,
-                'entry_options' => array('label'=>false),
-                'label' => false,
+            ->add('categories_id', EntityType::class, array(
+                'class' => Category::class,
+                'multiple' => true,
+                'expanded' => true,
+                'label' => 'Categories',
+                'empty_data' => null,
+                'required' => false,
             ))
             ->add('description', CKEditorType::class, array(
                 'config' => array(
@@ -92,9 +100,9 @@ class UpdateProductForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'csrf_protection' => true,
-            'csrf_field_name' => '_token',
-            'csrf_token_id' => 'update.product.admin-protection'
+           'csrf_protection' => true,
+           'csrf_field_name' => '_token',
+           'csrf_token_id' => 'create.product.admin'
         ));
     }
 }

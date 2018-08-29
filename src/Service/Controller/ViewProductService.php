@@ -26,14 +26,24 @@ class ViewProductService
     private $userAgent;
 
     /**
+     * @var ViewProductRepository
+     */
+    private $viewProductRepository;
+
+    /**
      * ViewProductService constructor.
      * @param EntityManagerInterface $em
      * @param UserAgent $userAgent
+     * @param ViewProductRepository $viewProductRepository
      */
-    public function __construct(EntityManagerInterface $em, UserAgent $userAgent)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        UserAgent $userAgent,
+        ViewProductRepository $viewProductRepository
+    ) {
         $this->em = $em;
         $this->userAgent = $userAgent;
+        $this->viewProductRepository = $viewProductRepository;
     }
 
     /**
@@ -56,12 +66,11 @@ class ViewProductService
 
     /**
      * @param int $limit
-     * @param ViewProductRepository $viewProductRepository
      * @return array
      */
-    public function getPopularProducts(int $limit, ViewProductRepository $viewProductRepository): array
+    public function getPopularProducts(int $limit): array
     {
-        $popularProducts = $viewProductRepository->findPopularProducts($limit);
+        $popularProducts = $this->viewProductRepository->findPopularProducts($limit);
 
         if (is_null($popularProducts)) {
             return array();

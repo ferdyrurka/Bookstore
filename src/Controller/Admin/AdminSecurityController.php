@@ -3,22 +3,17 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\User;
 use App\Form\CreateAdminForm;
-use App\Form\SignInForm;
-use App\Request\CreateAdminRequest;
-use App\Request\SignInRequest;
 use App\Security\SessionAttackInterface;
 use App\Service\SecurityService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class AdminSecurityController
@@ -46,7 +41,7 @@ class AdminSecurityController extends Controller implements SessionAttackInterfa
      */
     public function createAdminAction(Request $request): array
     {
-        $form = $this->createForm(CreateAdminForm::class, new CreateAdminRequest());
+        $form = $this->createForm(CreateAdminForm::class, new User());
 
         $form->handleRequest($request);
 
@@ -64,11 +59,11 @@ class AdminSecurityController extends Controller implements SessionAttackInterfa
      */
     public function saveAdminAction(SecurityService $service, Request $request): Response
     {
-        $form = $this->createForm(CreateAdminForm::class, new CreateAdminRequest());
+        $form = $this->createForm(CreateAdminForm::class, new User());
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $service->saveUser($form->getData(), 'ROLE_ADMIN');
 
             return $this->redirectToRoute('index.adminUser');
@@ -78,43 +73,5 @@ class AdminSecurityController extends Controller implements SessionAttackInterfa
             'App\Controller\Admin\AdminSecurityController:createAdminAction',
             array('request'=>$request)
         );
-    }
-
-    /**
-     * @param TranslatorInterface $translator
-     * @param AuthenticationUtils $authenticationUtils
-     * @return array
-     * @Route("/admin1999", methods={"GET", "POST"}, name="login.adminSecurity")
-     * @Template("admin/security/index.html.twig")
-     * @Security("not has_role('ROLE_ADMIN')")
-     */
-    public function indexAction(TranslatorInterface $translator, AuthenticationUtils $authenticationUtils): array
-    {
-        $form = $this->createForm(SignInForm::class, new SignInRequest());
-
-        $error = $authenticationUtils->getLastAuthenticationError();
-
-        if (!empty($error)) {
-            $error = $translator->trans($error->getMessage());
-        }
-
-        $csrfToken = $this->tokenManager
-            ? $this->tokenManager->getToken('authenticate')->getValue()
-            : null;
-
-        return array(
-            'form' => $form->createView(),
-            'error' => isset($error) ? $error : null,
-            'csrf_token' => $csrfToken,
-        );
-    }
-
-    /**
-     * @Route("/admin1999/log-out", methods={"GET"}, name="logout.adminSecurity")
-     * @IsGranted("ROLE_ADMIN")
-     */
-    public function logoutAction(): void
-    {
-        //
     }
 }

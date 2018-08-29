@@ -3,8 +3,8 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Category;
 use App\Form\CategoryForm;
-use App\Request\CategoryRequest;
 use App\Security\SessionAttackInterface;
 use App\Service\Controller\Admin\AdminCategoryService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -46,7 +46,7 @@ class AdminCategoryController extends Controller implements SessionAttackInterfa
      */
     public function createCategoryAction(Request $request): array
     {
-        $form = $this->createForm(CategoryForm::class, new CategoryRequest());
+        $form = $this->createForm(CategoryForm::class, new Category());
         $form->handleRequest($request);
 
         return array(
@@ -63,11 +63,11 @@ class AdminCategoryController extends Controller implements SessionAttackInterfa
      */
     public function saveCategoryAction(AdminCategoryService $service, Request $request): Response
     {
-        $form = $this->createForm(CategoryForm::class, new CategoryRequest());
+        $form = $this->createForm(CategoryForm::class, new Category());
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
-            $service->createCategory($form->getData());
+        if ($form->isSubmitted() && $form->isValid()) {
+            $service->saveCategory($form->getData());
 
             return $this->redirectToRoute('index.adminCategory');
         }
@@ -91,12 +91,9 @@ class AdminCategoryController extends Controller implements SessionAttackInterfa
      */
     public function updateCategoryAction(AdminCategoryService $service, Request $request, int $categoryId): array
     {
-        $categoryRequest = new CategoryRequest();
         $form = $this->createForm(
             CategoryForm::class,
-            $categoryRequest->setFormData(
-                $service->getCategory($categoryId)
-            )
+            $service->getCategory($categoryId)
         );
         $form->handleRequest($request);
 
@@ -115,17 +112,14 @@ class AdminCategoryController extends Controller implements SessionAttackInterfa
      */
     public function saveUpdateCategoryAction(AdminCategoryService $service, Request $request, int $categoryId): Response
     {
-        $categoryRequest = new CategoryRequest();
         $form = $this->createForm(
             CategoryForm::class,
-            $categoryRequest->setFormData(
-                $category = $service->getCategory($categoryId)
-            )
+            $service->getCategory($categoryId)
         );
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
-            $service->updateCategory($form->getData(), $category);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $service->saveCategory($form->getData());
 
             return $this->redirectToRoute('index.adminCategory');
         }

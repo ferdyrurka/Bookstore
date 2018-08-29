@@ -31,17 +31,4 @@ class CategoryControllerTest extends WebTestCase
         $this->user->request('GET', '/categories');
         $this->assertEquals(200, $this->user->getResponse()->getStatusCode());
     }
-
-    public function testProductCategoryListAction(): void
-    {
-        $this->guess->request('GET', '/products-in-category/tests-category');
-        $this->assertEquals(200, $this->guess->getResponse()->getStatusCode());
-
-        $this->guess->request('GET', '/products-in-category/not-found');
-        $this->assertEquals(404, $this->guess->getResponse()->getStatusCode());
-
-        $crawler = $this->user->request('GET', '/products-in-category/tests-category');
-        $this->assertEquals(200, $this->user->getResponse()->getStatusCode());
-        $this->assertCount(1, $crawler->filter('.product'));
-    }
 }

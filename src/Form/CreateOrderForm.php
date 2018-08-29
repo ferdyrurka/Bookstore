@@ -29,21 +29,51 @@ class CreateOrderForm extends AbstractType
     {
         $builder
             ->add('first_name', TextType::class, array(
-                'trim' => true
+                'trim' => true,
+                'attr' => [
+                    'maxlength' => 3,
+                    'minlength' => 24,
+                ],
             ))
             ->add('surname', TextType::class, array(
-                'trim' => true
+                'trim' => true,
+                'attr' => [
+                    'maxlength' => 4,
+                    'minlength' => 32,
+                ],
             ))
-            ->add('city', TextType::class)
-            ->add('street', TextType::class)
+            ->add('city', TextType::class, [
+                'attr' => [
+                    'maxlength' => 3,
+                    'minlength' => 64,
+                ],
+            ])
+            ->add('street', TextType::class, [
+                'attr' => [
+                    'maxlength' => 3,
+                    'minlength' => 64,
+                ],
+            ])
             ->add('house_number', TextType::class, array(
-                'trim' => true
+                'trim' => true,
+                'attr' => [
+                    'maxlength' => 1,
+                    'minlength' => 5,
+                ],
             ))
             ->add('post_code', TextType::class, array(
-                'trim' => true
+                'trim' => true,
+                'attr' => [
+                    'maxlength' => 6,
+                    'minlength' => 6,
+                ],
             ))
             ->add('phone', TextType::class, array(
-                'trim' => true
+                'trim' => true,
+                'attr' => [
+                    'maxlength' => 9,
+                    'minlength' => 9,
+                ],
             ))
             ->add('email', EmailType::class)
             ->add('price_methods', CollectionType::class, array(

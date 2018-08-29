@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -44,46 +45,97 @@ class Order
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Assert\Length(
+     *     max=1024,
+     *     maxMessage = "Other information max length in orders is {{ limit }}."
+     * )
      */
     private $otherInformation;
 
     /**
      * @ORM\Column(type="string", length=24, name="first_name")
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Length(
+     *      min=3,
+     *      max=24,
+     *      minMessage="min.length {{limit}}",
+     *      maxMessage="max.length {{limit}}",
+     * )
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=32)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Length(
+     *      min=4,
+     *      max=32,
+     *      minMessage="min.length {{limit}}",
+     *      maxMessage="max.length {{limit}}",
+     * )
      */
     private $surname;
 
     /**
      * @ORM\Column(type="string", length=6)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Regex(
+     *     pattern="/^([0-9]){2,2}-([0-9]){3,3}$/",
+     *     message="Given incorrect post code address",
+     * )
      */
     private $postCode;
 
     /**
      * @ORM\Column(type="integer", length=9)
+     * @Assert\NotBlank(message="not.black.fields")
+     * @Assert\Regex(
+     *     pattern="/^[0-9]{9,9}$/",
+     *     message="Given incorrect phone number",
+     * )
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Length(
+     *      max=64,
+     *      maxMessage="max.length {{limit}}",
+     * )
+     * @Assert\Email(
+     *     message = "incorrect data provided",
+     * )
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Regex(
+     *     pattern="/^([A-ZĄĆĘŁŃÓŚŹŻ|a-ząćęłnóśźż| |\-|]){3,64}$/",
+     *     message="Given city is incorrect",
+     * )
      */
     private $city;
 
     /**
      * @ORM\Column(type="string",length=64)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Regex(
+     *     pattern="/^([A-ZĄĆĘŁŃÓŚŹŻ|a-ząćęłnóśźż| |\-|]){3,64}$/",
+     *     message="Given street is incorrect",
+     * )
      */
     private $street;
 
     /**
      * @ORM\Column(type="string",length=8)
+     * @Assert\NotBlank(message="not.blank.fields")
+     * @Assert\Regex(
+     *     pattern="/^([0-9|A-Z|a-z|\/|\\]){1,5}$/",
+     *     message="Given house number is incorrect",
+     * )
      */
     private $houseNumber;
 
@@ -104,6 +156,16 @@ class Order
      * @ORM\JoinColumn(name="price_method_id", referencedColumnName="id")
      */
     private $priceMethodReferences;
+
+    /**
+     * @Assert\Valid()
+     */
+    private $priceMethods;
+
+    /**
+     * @Assert\Valid()
+     */
+    private $deliveryMethods;
 
     /**
      * @return int
@@ -210,129 +272,129 @@ class Order
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getFirstName(): string
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
 
     /**
-     * @param string $firstName
+     * @param null|string $firstName
      */
-    public function setFirstName(string $firstName): void
+    public function setFirstName(?string $firstName): void
     {
         $this->firstName = $firstName;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getSurname(): string
+    public function getSurname(): ?string
     {
         return $this->surname;
     }
 
     /**
-     * @param string $surname
+     * @param null|string $surname
      */
-    public function setSurname(string $surname): void
+    public function setSurname(?string $surname): void
     {
         $this->surname = $surname;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getPostCode(): string
+    public function getPostCode(): ?string
     {
         return $this->postCode;
     }
 
     /**
-     * @param string $postCode
+     * @param null|string $postCode
      */
-    public function setPostCode(string $postCode)
+    public function setPostCode(?string $postCode)
     {
         $this->postCode = $postCode;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getPhone(): int
+    public function getPhone(): ?int
     {
         return $this->phone;
     }
 
     /**
-     * @param int $phone
+     * @param int|null $phone
      */
-    public function setPhone(int $phone)
+    public function setPhone(?int $phone)
     {
         $this->phone = $phone;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
     /**
-     * @param string $email
+     * @param null|string $email
      */
-    public function setEmail(string $email): void
+    public function setEmail(?string $email): void
     {
         $this->email = $email;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getCity(): string
+    public function getCity(): ?string
     {
         return $this->city;
     }
 
     /**
-     * @param string $city
+     * @param null|string $city
      */
-    public function setCity(string $city)
+    public function setCity(?string $city)
     {
         $this->city = $city;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getStreet(): string
+    public function getStreet(): ?string
     {
         return $this->street;
     }
 
     /**
-     * @param string $street
+     * @param null|string $street
      */
-    public function setStreet(string $street)
+    public function setStreet(?string $street)
     {
         $this->street = $street;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getHouseNumber(): string
+    public function getHouseNumber(): ?string
     {
         return $this->houseNumber;
     }
 
     /**
-     * @param string $houseNumber
+     * @param null|string $houseNumber
      */
-    public function setHouseNumber(string $houseNumber)
+    public function setHouseNumber(?string $houseNumber)
     {
         $this->houseNumber = $houseNumber;
     }
@@ -383,5 +445,45 @@ class Order
     public function setPriceMethodReferences(PriceMethod $priceMethod)
     {
         $this->priceMethodReferences = $priceMethod;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDeliveryMethods(): array
+    {
+        if (empty($this->deliveryMethods)) {
+            return [new DeliveryMethod()];
+        }
+
+        return $this->deliveryMethods;
+    }
+
+    /**
+     * @param array $deliveryMethods
+     */
+    public function setDeliveryMethods(array $deliveryMethods): void
+    {
+        $this->deliveryMethods = $deliveryMethods;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPriceMethods(): array
+    {
+        if (empty($this->priceMethods)) {
+            return [new PriceMethod()];
+        }
+
+        return $this->priceMethods;
+    }
+
+    /**
+     * @param array $priceMethods
+     */
+    public function setPriceMethods(array $priceMethods): void
+    {
+        $this->priceMethods = $priceMethods;
     }
 }

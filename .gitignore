@@ -4,6 +4,7 @@
 /public/bundles/
 /var/
 /vendor/
+/codecoverage/
 ###< symfony/framework-bundle ###
 .idea
 .vscode
