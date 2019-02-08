@@ -34,7 +34,7 @@
         "symfony/web-link": "^4.1",
         "symfony/yaml": "^4.1",
         "twig/twig": "2.*",
-        "swiftmailer/swiftmailer": "6.1.*"
+        "symfony/swiftmailer-bundle": "3.2.*"
     },
     "require-dev": {
         "phploc/phploc": "^4.0",
